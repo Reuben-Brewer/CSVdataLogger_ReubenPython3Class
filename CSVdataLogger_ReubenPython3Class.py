@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision E, 05/10/2023
+Software Revision F, 09/24/2024
 
 Verified working on: Python 3.8 for Windows 8.1, 10 64-bit and Raspberry Pi Buster (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
@@ -74,9 +74,13 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
         self.DataStreamingFrequency_CalculatedFromMainThread = -11111.0
         self.DataStreamingDeltaT_CalculatedFromMainThread = -11111.0
 
+        self.CSVfile_FilepathFull = ""
+
         self.CSVfile_SaveFlag = 0
         self.CSVfile_SaveFlag_NeedsToBeChangedFlag = 0
         self.AcceptNewDataFlag = 0
+
+        self.MostRecentDataDict = dict()
         #########################################################
         #########################################################
 
@@ -505,6 +509,14 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
 
     ##########################################################################################################
     ##########################################################################################################
+    def IsAcceptingNewData(self):
+
+        return self.AcceptNewDataFlag
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
     def UpdateFrequencyCalculation_MainThread(self):
 
         try:
@@ -637,6 +649,19 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
 
     ##########################################################################################################
     ##########################################################################################################
+    def GetMostRecentDataDict(self):
+
+        if self.EXIT_PROGRAM_FLAG == 0:
+
+            return deepcopy(self.MostRecentDataDict) #deepcopy IS required as MostRecentDataDict contains lists.
+
+        else:
+            return dict()  # So that we're not returning variables during the close-down process.
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
     def AddDataToCSVfile_ExternalFunctionCall(self, ListOfDataToWrite):
 
         if self.AcceptNewDataFlag == 1:
@@ -650,7 +675,6 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
                     print("AddDataToCSVfile: ERROR,list is incorrect length.")
 
             else:
-
                 print("AddDataToCSVfile: ERROR, input must be a list.")
 
     ##########################################################################################################
@@ -716,17 +740,15 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
                 ##########################################################################################################
 
                 ##########################################################################################################
-                #else:
-
-                #    ###################################################
-                #    if self.EXIT_PROGRAM_FLAG == 0:
-                #        break
-                    ###################################################
-
-                ##########################################################################################################
-
-                ##########################################################################################################
                 self.UpdateFrequencyCalculation_MainThread()
+
+                self.MostRecentDataDict["Time"] = self.CurrentTime_CalculatedFromMainThread
+                self.MostRecentDataDict["DataStreamingFrequency_CalculatedFromMainThread"] = self.DataStreamingFrequency_CalculatedFromMainThread
+                self.MostRecentDataDict["AcceptNewDataFlag"] = self.AcceptNewDataFlag
+                self.MostRecentDataDict["SaveFlag"] = self.CSVfile_SaveFlag
+                self.MostRecentDataDict["DataQueue_qsize"] = self.DataQueue.qsize()
+                self.MostRecentDataDict["VariableNamesForHeaderList"] = self.VariableNamesForHeaderList
+                self.MostRecentDataDict["FilepathFull"] = self.CSVfile_FilepathFull
 
                 if self.MainThread_TimeToSleepEachLoop > 0.0:
                     time.sleep(self.MainThread_TimeToSleepEachLoop)

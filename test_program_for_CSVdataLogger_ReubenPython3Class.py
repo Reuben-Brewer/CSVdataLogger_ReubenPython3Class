@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision E, 05/10/2023
+Software Revision F, 09/24/2024
 
 Verified working on: Python 3.8 for Windows 8.1, 10 64-bit and Raspberry Pi Buster (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
@@ -344,6 +344,24 @@ if __name__ == '__main__':
 
     global CSVdataLogger_MostRecentDict_Time
     CSVdataLogger_MostRecentDict_Time = -11111.0
+
+    global CSVdataLogger_MostRecentDict_DataStreamingFrequency_CalculatedFromMainThread
+    CSVdataLogger_MostRecentDict_DataStreamingFrequency_CalculatedFromMainThread = -11111.0
+
+    global CSVdataLogger_MostRecentDict_AcceptNewDataFlag
+    CSVdataLogger_MostRecentDict_AcceptNewDataFlag = -1
+
+    global CSVdataLogger_MostRecentDict_SaveFlag
+    CSVdataLogger_MostRecentDict_SaveFlag = -1
+
+    global CSVdataLogger_MostRecentDict_DataQueue_qsize
+    CSVdataLogger_MostRecentDict_DataQueue_qsize = -1
+
+    global CSVdataLogger_MostRecentDict_VariableNamesForHeaderList
+    CSVdataLogger_MostRecentDict_VariableNamesForHeaderList = []
+
+    global CSVdataLogger_MostRecentDict_FilepathFull
+    CSVdataLogger_MostRecentDict_FilepathFull = ""
     #################################################
     #################################################
 
@@ -538,6 +556,24 @@ if __name__ == '__main__':
         ####################################################
         ####################################################
         CurrentTime_MainLoopThread = getPreciseSecondsTimeStampString() - StartingTime_MainLoopThread
+        ####################################################
+        ####################################################
+
+        #################################################### GET's
+        ####################################################
+        CSVdataLogger_MostRecentDict = CSVdataLogger_ReubenPython3ClassObject.GetMostRecentDataDict()
+
+        if "Time" in CSVdataLogger_MostRecentDict:
+            CSVdataLogger_MostRecentDict_Time = CSVdataLogger_MostRecentDict["Time"]
+            CSVdataLogger_MostRecentDict_DataStreamingFrequency_CalculatedFromMainThread = CSVdataLogger_MostRecentDict["DataStreamingFrequency_CalculatedFromMainThread"]
+            CSVdataLogger_MostRecentDict_AcceptNewDataFlag = CSVdataLogger_MostRecentDict["AcceptNewDataFlag"]
+            CSVdataLogger_MostRecentDict_SaveFlag = CSVdataLogger_MostRecentDict["SaveFlag"]
+            CSVdataLogger_MostRecentDict_DataQueue_qsize = CSVdataLogger_MostRecentDict["DataQueue_qsize"]
+            CSVdataLogger_MostRecentDict_VariableNamesForHeaderList = CSVdataLogger_MostRecentDict["VariableNamesForHeaderList"]
+            CSVdataLogger_MostRecentDict_FilepathFull = CSVdataLogger_MostRecentDict["FilepathFull"]
+
+            print("CSVdataLogger_MostRecentDict: " + str(CSVdataLogger_MostRecentDict))
+
         ####################################################
         ####################################################
 
