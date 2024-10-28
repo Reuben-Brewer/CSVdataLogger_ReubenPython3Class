@@ -12,13 +12,13 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision F, 09/24/2024
+Software Revision G, 10/27/2024
 
 Verified working on: 
 
-Python 3.9
+Python 3.12
 
-Windows  10, 64-bit
+Windows 11, 64-bit
 
 Raspberry Pi Bullseye
 
