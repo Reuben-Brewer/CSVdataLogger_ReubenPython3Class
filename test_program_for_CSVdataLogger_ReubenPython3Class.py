@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision G, 10/27/2024
+Software Revision H, 11/05/2024
 
 Verified working on: Python 3.12 for Windows 11 64-bit and Raspberry Pi Buster (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
@@ -344,9 +344,6 @@ if __name__ == '__main__':
     global CSVdataLogger_MostRecentDict
     CSVdataLogger_MostRecentDict = dict()
 
-    global CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag
-    CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag = 0
-
     global CSVdataLogger_MostRecentDict_Time
     CSVdataLogger_MostRecentDict_Time = -11111.0
 
@@ -367,6 +364,12 @@ if __name__ == '__main__':
 
     global CSVdataLogger_MostRecentDict_FilepathFull
     CSVdataLogger_MostRecentDict_FilepathFull = ""
+
+    global CSVdataLogger_HeaderWrittenYetFlag
+    CSVdataLogger_HeaderWrittenYetFlag = 0
+
+    global CSVdataLogger_IsSavingFlag
+    CSVdataLogger_IsSavingFlag = 0
     #################################################
     #################################################
 
@@ -415,6 +418,8 @@ if __name__ == '__main__':
 
     #################################################
     #################################################
+
+    #################################################
     global CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict
     CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_CSVdataLogger_FLAG),
                                     ("root", Tab_CSVdataLogger),
@@ -427,16 +432,30 @@ if __name__ == '__main__':
                                     ("GUI_PADY", GUI_PADY_CSVdataLogger),
                                     ("GUI_ROWSPAN", GUI_ROWSPAN_CSVdataLogger),
                                     ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_CSVdataLogger)])
+    #################################################
 
+    #################################################
+    CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList = ["Time",
+                                                                                    "SinusoidalInput_CalculatedValue_1",
+                                                                                    "SinusoidalInput_CalculatedValue_2"]
+    #################################################
+
+    #################################################
+    print("CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList: " + str(CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList))
+    #################################################
+
+    #################################################
     global CSVdataLogger_ReubenPython3ClassObject_setup_dict
     CSVdataLogger_ReubenPython3ClassObject_setup_dict = dict([("GUIparametersDict", CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict),
                                                                                 ("NameToDisplay_UserSet", "Reuben's Test CSVdataLogger"),
                                                                                 ("CSVfile_DirectoryPath", "G:\\My Drive\\CodeReuben\\CSVdataLogger_ReubenPython3Class\\TestCSVfiles"),
                                                                                 ("FileNamePrefix", "test_"),
-                                                                                ("VariableNamesForHeaderList", ["Var1", "Var2"]),
+                                                                                ("VariableNamesForHeaderList", CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList),
                                                                                 ("MainThread_TimeToSleepEachLoop", 0.010),
                                                                                 ("SaveOnStartupFlag", 0)])
+    #################################################
 
+    #################################################
     if USE_CSVdataLogger_FLAG == 1:
         try:
             CSVdataLogger_ReubenPython3ClassObject = CSVdataLogger_ReubenPython3Class(CSVdataLogger_ReubenPython3ClassObject_setup_dict)
@@ -446,6 +465,8 @@ if __name__ == '__main__':
             exceptions = sys.exc_info()[0]
             print("CSVdataLogger_ReubenPython3ClassObject __init__: Exceptions: %s" % exceptions, 0)
             traceback.print_exc()
+    #################################################
+
     #################################################
     #################################################
 
@@ -608,7 +629,9 @@ if __name__ == '__main__':
         SinusoidalInput_CalculatedValue_2 = (SinusoidalInput_MaxValue + SinusoidalInput_MinValue)/2.0 + 0.5*abs(SinusoidalInput_MaxValue - SinusoidalInput_MinValue)*math.cos(SinusoidalInput_TimeGain*CurrentTime_MainLoopThread)
 
         if CSVdataLogger_OPEN_FLAG == 1:
-            CSVdataLogger_ReubenPython3ClassObject.AddDataToCSVfile_ExternalFunctionCall([SinusoidalInput_CalculatedValue_1, SinusoidalInput_CalculatedValue_2])
+            CSVdataLogger_ReubenPython3ClassObject.AddDataToCSVfile_ExternalFunctionCall([CurrentTime_MainLoopThread,
+                                                                                          SinusoidalInput_CalculatedValue_1,
+                                                                                          SinusoidalInput_CalculatedValue_2])
         ####################################################
         ####################################################
 
