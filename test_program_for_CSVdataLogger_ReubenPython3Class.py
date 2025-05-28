@@ -6,9 +6,9 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision H, 11/05/2024
+Software Revision I, 05/27/2025
 
-Verified working on: Python 3.12 for Windows 11 64-bit and Raspberry Pi Buster (may work on Mac in non-GUI mode, but haven't tested yet).
+Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
 
 __author__ = 'reuben.brewer'
@@ -42,7 +42,116 @@ if platform.system() == "Windows":
     winmm.timeBeginPeriod(1) #Set minimum timer resolution to 1ms so that time.sleep(0.001) behaves properly.
 ###########################################################
 
-###########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+def GetLatestWaveformValue(CurrentTime, MinValue, MaxValue, Period, WaveformTypeString="Sine"):
+    
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
+        try:
+
+            ##########################################################################################################
+            ##########################################################################################################
+            OutputValue = 0.0
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            WaveformTypeString_ListOfAcceptableValues = ["Sine", "Cosine", "Triangular", "Square"]
+        
+            if WaveformTypeString not in WaveformTypeString_ListOfAcceptableValues:
+                print("GetLatestWaveformValue: Error, WaveformTypeString must be in " + str(WaveformTypeString_ListOfAcceptableValues))
+                return -11111.0
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            if WaveformTypeString == "Sine":
+    
+                TimeGain = math.pi/Period
+                OutputValue = (MaxValue + MinValue)/2.0 + 0.5*abs(MaxValue - MinValue)*math.sin(TimeGain*CurrentTime)
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            elif WaveformTypeString == "Cosine":
+    
+                TimeGain = math.pi/Period
+                OutputValue = (MaxValue + MinValue)/2.0 + 0.5*abs(MaxValue - MinValue)*math.cos(TimeGain*CurrentTime)
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            elif WaveformTypeString == "Triangular":
+                TriangularInput_TimeGain = 1.0
+                TriangularInput_MinValue = -5
+                TriangularInput_MaxValue = 5.0
+                TriangularInput_PeriodInSeconds = 2.0
+        
+                #TriangularInput_Height0toPeak = abs(TriangularInput_MaxValue - TriangularInput_MinValue)
+                #TriangularInput_CalculatedValue_1 = abs((TriangularInput_TimeGain*CurrentTime_MainLoopThread % SinusoidalInput_PeriodInSeconds) - TriangularInput_Height0toPeak) + TriangularInput_MinValue
+        
+                A = abs(MaxValue - MinValue)
+                P = Period
+    
+                #https://stackoverflow.com/questions/1073606/is-there-a-one-line-function-that-generates-a-triangle-wave
+                OutputValue = (A / (P / 2)) * ((P / 2) - abs(CurrentTime % (2 * (P / 2)) - P / 2)) + MinValue
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            elif WaveformTypeString == "Square":
+    
+                TimeGain = math.pi/Period
+                MeanValue = (MaxValue + MinValue)/2.0
+                SinusoidalValue =  MeanValue + 0.5*abs(MaxValue - MinValue)*math.sin(TimeGain*CurrentTime)
+                
+                if SinusoidalValue >= MeanValue:
+                    OutputValue = MaxValue
+                else:
+                    OutputValue = MinValue
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            else:
+                OutputValue = 0.0
+            ##########################################################################################################
+            ##########################################################################################################
+            
+            return OutputValue
+
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
+        
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
+        except:
+            exceptions = sys.exc_info()[0]
+            print("GetLatestWaveformValue: Exceptions: %s" % exceptions)
+            return -11111.0
+            traceback.print_exc()
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
+
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+
+##########################################################################################################
 ##########################################################################################################
 def getPreciseSecondsTimeStampString():
     ts = time.time()
@@ -52,18 +161,6 @@ def getPreciseSecondsTimeStampString():
 ##########################################################################################################
 
 ##########################################################################################################
-##########################################################################################################
-def TestButtonResponse():
-    global MyPrint_ReubenPython2and3ClassObject
-    global USE_MyPrint_FLAG
-
-    if USE_MyPrint_FLAG == 1:
-        MyPrint_ReubenPython2and3ClassObject.my_print("Test Button was Pressed!")
-    else:
-        print("Test Button was Pressed!")
-##########################################################################################################
-##########################################################################################################
-
 ##########################################################################################################
 ##########################################################################################################
 def GUI_update_clock():
@@ -82,23 +179,24 @@ def GUI_update_clock():
 
     if USE_GUI_FLAG == 1:
         if EXIT_PROGRAM_FLAG == 0:
-        #########################################################
-        #########################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
-            #########################################################
+            ##########################################################################################################
             if CSVdataLogger_OPEN_FLAG == 1 and SHOW_IN_GUI_CSVdataLogger_FLAG == 1:
                 CSVdataLogger_ReubenPython3ClassObject.GUI_update_clock()
-            #########################################################
+            ##########################################################################################################
 
-            #########################################################
+            ##########################################################################################################
             if MyPrint_OPEN_FLAG == 1 and SHOW_IN_GUI_MyPrint_FLAG == 1:
                 MyPrint_ReubenPython2and3ClassObject.GUI_update_clock()
-            #########################################################
+            ##########################################################################################################
 
             root.after(GUI_RootAfterCallbackInterval_Milliseconds, GUI_update_clock)
-        #########################################################
-        #########################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
+##########################################################################################################
 ##########################################################################################################
 ##########################################################################################################
 
@@ -119,6 +217,7 @@ def ExitProgram_Callback(OptionalArugment = 0):
 
 ##########################################################################################################
 ##########################################################################################################
+##########################################################################################################
 def GUI_Thread():
     global root
     global root_Xpos
@@ -128,21 +227,21 @@ def GUI_Thread():
     global GUI_RootAfterCallbackInterval_Milliseconds
     global USE_TABS_IN_GUI_FLAG
 
-    ################################################# KEY GUI LINE
-    #################################################
+    ########################################################################################################## KEY GUI LINE
+    ##########################################################################################################
     root = Tk()
-    #################################################
-    #################################################
+    ##########################################################################################################
+    ##########################################################################################################
 
-    #################################################
-    #################################################
+    ##########################################################################################################
+    ##########################################################################################################
     global TabControlObject
     global Tab_MainControls
     global Tab_CSVdataLogger
     global Tab_MyPrint
 
     if USE_TABS_IN_GUI_FLAG == 1:
-        #################################################
+        ##########################################################################################################
         TabControlObject = ttk.Notebook(root)
 
         Tab_CSVdataLogger = ttk.Frame(TabControlObject)
@@ -160,35 +259,36 @@ def GUI_Thread():
         TabStyle = ttk.Style()
         TabStyle.configure('TNotebook.Tab', font=('Helvetica', '12', 'bold'))
         #############
-        #################################################
+
+        ##########################################################################################################
     else:
-        #################################################
+        ##########################################################################################################
         Tab_MainControls = root
         Tab_CSVdataLogger = root
         Tab_MyPrint = root
-        #################################################
+        ##########################################################################################################
 
-    #################################################
-    #################################################
+    ##########################################################################################################
+    ##########################################################################################################
 
-    #################################################
-    TestButton = Button(Tab_MainControls, text='Test Button', state="normal", width=20, command=lambda i=1: TestButtonResponse())
-    TestButton.grid(row=0, column=0, padx=5, pady=1)
-    #################################################
-
-    ################################################# THIS BLOCK MUST COME 2ND-TO-LAST IN def GUI_Thread() IF USING TABS.
+    ########################################################################################################## THIS BLOCK MUST COME 2ND-TO-LAST IN def GUI_Thread() IF USING TABS.
+    ##########################################################################################################
     root.protocol("WM_DELETE_WINDOW", ExitProgram_Callback)  # Set the callback function for when the window's closed.
     root.title("test_program_for_CSVdataLogger_ReubenPython3Class")
     root.geometry('%dx%d+%d+%d' % (root_width, root_height, root_Xpos, root_Ypos)) # set the dimensions of the screen and where it is placed
     root.after(GUI_RootAfterCallbackInterval_Milliseconds, GUI_update_clock)
     root.mainloop()
-    #################################################
+    ##########################################################################################################
+    ##########################################################################################################
 
-    #################################################  THIS BLOCK MUST COME LAST IN def GUI_Thread() REGARDLESS OF CODE.
+    ##########################################################################################################  THIS BLOCK MUST COME LAST IN def GUI_Thread() REGARDLESS OF CODE.
+    ##########################################################################################################
     root.quit() #Stop the GUI thread, MUST BE CALLED FROM GUI_Thread
     root.destroy() #Close down the GUI thread, MUST BE CALLED FROM GUI_Thread
-    #################################################
+    ##########################################################################################################
+    ##########################################################################################################
 
+##########################################################################################################
 ##########################################################################################################
 ##########################################################################################################
 
@@ -317,19 +417,37 @@ if __name__ == '__main__':
     global GUI_RootAfterCallbackInterval_Milliseconds
     GUI_RootAfterCallbackInterval_Milliseconds = 30
 
-    global SinusoidalInput_HalfPeriodInSeconds
-    SinusoidalInput_HalfPeriodInSeconds = 2.0
+    global ControlInput_AcceptableValues
+    ControlInput_AcceptableValues = ["GUI", "VINThub", "Sine", "Cosine", "Triangular", "Square"]
 
-    global SinusoidalInput_MinValue
-    SinusoidalInput_MinValue = -20.0
+    global ControlInput_1
+    ControlInput_1 = "Sine"
 
-    global SinusoidalInput_MaxValue
-    SinusoidalInput_MaxValue = 20.0
+    global ControlInput_MinValue_1
+    ControlInput_MinValue_1 = -3.0
 
-    global SinusoidalInput_CalculatedValue_1
+    global ControlInput_MaxValue_1
+    ControlInput_MaxValue_1 = 3.0
+
+    global ControlInput_Period_1
+    ControlInput_Period_1 = 4.0
+
+    global ControlInput_CalculatedValue_1
     SinusoidalInput_CalculatedValue_1 = 0.0
 
-    global SinusoidalInput_CalculatedValue_2
+    global ControlInput_2
+    ControlInput_2 = "Triangular"
+
+    global ControlInput_MinValue_2
+    ControlInput_MinValue_2 = -1.0
+
+    global ControlInput_MaxValue_2
+    ControlInput_MaxValue_2 = 5.0
+
+    global ControlInput_Period_2
+    ControlInput_Period_2 = 3
+
+    global ControlInput_CalculatedValue_2
     SinusoidalInput_CalculatedValue_2 = 0.0
     #################################################
     #################################################
@@ -370,6 +488,23 @@ if __name__ == '__main__':
 
     global CSVdataLogger_IsSavingFlag
     CSVdataLogger_IsSavingFlag = 0
+
+    #################################################
+    global CSVdataLogger_CSVfile_DirectoryPath
+
+    if platform.system() == "Windows":
+        CSVdataLogger_CSVfile_DirectoryPath = os.getcwd() + "\\CSVfiles"
+    else:
+        CSVdataLogger_CSVfile_DirectoryPath = os.getcwd() + "//CSVfiles" #Linux requires the opposite-direction slashes
+    #################################################
+
+    #################################################
+    global CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList #unicorn
+    CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList = ["Time",
+                                                                                    "ControlInput_CalculatedValue_1",
+                                                                                    "ControlInput_CalculatedValue_2"]
+    #################################################
+
     #################################################
     #################################################
 
@@ -389,14 +524,14 @@ if __name__ == '__main__':
     global MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG
     MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG = -1
 
-    global MyPlotterPureTkinter_MostRecentDict
-    MyPlotterPureTkinter_MostRecentDict = dict()
+    global MyPlotterPureTkinterStandAloneProcess_MostRecentDict
+    MyPlotterPureTkinterStandAloneProcess_MostRecentDict = dict()
 
-    global MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag
-    MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag = -1
+    global MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag
+    MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag = -1
 
-    global LastTime_MainLoopThread_PLOTTER
-    LastTime_MainLoopThread_PLOTTER = -11111.0
+    global LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess
+    LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess = -11111.0
     #################################################
     #################################################
 
@@ -435,35 +570,25 @@ if __name__ == '__main__':
     #################################################
 
     #################################################
-    CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList = ["Time",
-                                                                                    "SinusoidalInput_CalculatedValue_1",
-                                                                                    "SinusoidalInput_CalculatedValue_2"]
-    #################################################
-
-    #################################################
-    print("CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList: " + str(CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList))
-    #################################################
-
-    #################################################
     global CSVdataLogger_ReubenPython3ClassObject_setup_dict
     CSVdataLogger_ReubenPython3ClassObject_setup_dict = dict([("GUIparametersDict", CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict),
-                                                                                ("NameToDisplay_UserSet", "Reuben's Test CSVdataLogger"),
-                                                                                ("CSVfile_DirectoryPath", "G:\\My Drive\\CodeReuben\\CSVdataLogger_ReubenPython3Class\\TestCSVfiles"),
-                                                                                ("FileNamePrefix", "test_"),
+                                                                                ("NameToDisplay_UserSet", "CSVdataLogger"),
+                                                                                ("CSVfile_DirectoryPath", CSVdataLogger_CSVfile_DirectoryPath),
+                                                                                ("FileNamePrefix", "CSV_file_"),
                                                                                 ("VariableNamesForHeaderList", CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList),
                                                                                 ("MainThread_TimeToSleepEachLoop", 0.010),
                                                                                 ("SaveOnStartupFlag", 0)])
     #################################################
 
     #################################################
-    if USE_CSVdataLogger_FLAG == 1:
+    if USE_CSVdataLogger_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         try:
             CSVdataLogger_ReubenPython3ClassObject = CSVdataLogger_ReubenPython3Class(CSVdataLogger_ReubenPython3ClassObject_setup_dict)
             CSVdataLogger_OPEN_FLAG = CSVdataLogger_ReubenPython3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
 
         except:
             exceptions = sys.exc_info()[0]
-            print("CSVdataLogger_ReubenPython3ClassObject __init__: Exceptions: %s" % exceptions, 0)
+            print("CSVdataLogger_ReubenPython3ClassObject __init__: Exceptions: %s" % exceptions)
             traceback.print_exc()
     #################################################
 
@@ -472,24 +597,35 @@ if __name__ == '__main__':
 
     #################################################
     #################################################
-    if USE_MyPrint_FLAG == 1:
+    if USE_CSVdataLogger_FLAG == 1:
+        if EXIT_PROGRAM_FLAG == 0:
+            if CSVdataLogger_OPEN_FLAG != 1:
+                print("Failed to open CSVdataLogger_ReubenPython3Class.")
+                ExitProgram_Callback()
+    #################################################
+    #################################################
 
-        MyPrint_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_MyPrint_FLAG),
-                                                                        ("root", Tab_MyPrint),
-                                                                        ("UseBorderAroundThisGuiObjectFlag", 0),
-                                                                        ("GUI_ROW", GUI_ROW_MyPrint),
-                                                                        ("GUI_COLUMN", GUI_COLUMN_MyPrint),
-                                                                        ("GUI_PADX", GUI_PADX_MyPrint),
-                                                                        ("GUI_PADY", GUI_PADY_MyPrint),
-                                                                        ("GUI_ROWSPAN", GUI_ROWSPAN_MyPrint),
-                                                                        ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_MyPrint)])
+    #################################################
+    #################################################
+    global MyPrint_ReubenPython2and3ClassObject_GUIparametersDict
+    MyPrint_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_MyPrint_FLAG),
+                                                                    ("root", Tab_MyPrint),
+                                                                    ("UseBorderAroundThisGuiObjectFlag", 0),
+                                                                    ("GUI_ROW", GUI_ROW_MyPrint),
+                                                                    ("GUI_COLUMN", GUI_COLUMN_MyPrint),
+                                                                    ("GUI_PADX", GUI_PADX_MyPrint),
+                                                                    ("GUI_PADY", GUI_PADY_MyPrint),
+                                                                    ("GUI_ROWSPAN", GUI_ROWSPAN_MyPrint),
+                                                                    ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_MyPrint)])
 
-        MyPrint_ReubenPython2and3ClassObject_setup_dict = dict([("NumberOfPrintLines", 10),
-                                                                ("WidthOfPrintingLabel", 200),
-                                                                ("PrintToConsoleFlag", 1),
-                                                                ("LogFileNameFullPath", os.getcwd() + "//TestLog.txt"),
-                                                                ("GUIparametersDict", MyPrint_ReubenPython2and3ClassObject_GUIparametersDict)])
+    global MyPrint_ReubenPython2and3ClassObject_setup_dict
+    MyPrint_ReubenPython2and3ClassObject_setup_dict = dict([("NumberOfPrintLines", 10),
+                                                            ("WidthOfPrintingLabel", 200),
+                                                            ("PrintToConsoleFlag", 1),
+                                                            ("LogFileNameFullPath", os.getcwd() + "//TestLog.txt"),
+                                                            ("GUIparametersDict", MyPrint_ReubenPython2and3ClassObject_GUIparametersDict)])
 
+    if USE_MyPrint_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         try:
             MyPrint_ReubenPython2and3ClassObject = MyPrint_ReubenPython2and3Class(MyPrint_ReubenPython2and3ClassObject_setup_dict)
             MyPrint_OPEN_FLAG = MyPrint_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
@@ -498,6 +634,16 @@ if __name__ == '__main__':
             exceptions = sys.exc_info()[0]
             print("MyPrint_ReubenPython2and3ClassObject __init__: Exceptions: %s" % exceptions)
             traceback.print_exc()
+    #################################################
+    #################################################
+
+    #################################################
+    #################################################
+    if USE_MyPrint_FLAG == 1:
+        if EXIT_PROGRAM_FLAG == 0:
+            if MyPrint_OPEN_FLAG != 1:
+                print("Failed to open MyPrint_ReubenPython2and3Class.")
+                ExitProgram_Callback()
     #################################################
     #################################################
 
@@ -517,8 +663,10 @@ if __name__ == '__main__':
     MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_setup_dict = dict([("GUIparametersDict", MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_GUIparametersDict),
                                                                                         ("ParentPID", os.getpid()),
                                                                                         ("WatchdogTimerExpirationDurationSeconds_StandAlonePlottingProcess", 5.0),
-                                                                                        ("MarkerSize", 3),
-                                                                                        ("CurvesToPlotNamesAndColorsDictOfLists", dict([("NameList", ["Channel0", "Channel1"]),("ColorList", ["Red", "Green"])])),
+                                                                                        ("CurvesToPlotNamesAndColorsDictOfLists", dict([("NameList", ["Channel0", "Channel1"]),
+                                                                                                                                        ("MarkerSizeList", [3, 3]),
+                                                                                                                                        ("LineWidthList", [3, 3]),
+                                                                                                                                        ("ColorList", ["Red", "Green"])])),
                                                                                         ("NumberOfDataPointToPlot", 50),
                                                                                         ("XaxisNumberOfTickMarks", 10),
                                                                                         ("YaxisNumberOfTickMarks", 10),
@@ -535,7 +683,7 @@ if __name__ == '__main__':
                                                                                         ("YaxisLabelString", "Y-units (units)"),
                                                                                         ("ShowLegendFlag", 1)])
 
-    if USE_MyPlotterPureTkinterStandAloneProcess_FLAG == 1:
+    if USE_MyPlotterPureTkinterStandAloneProcess_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         try:
             MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject = MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class(MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_setup_dict)
             MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG = MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.OBJECT_CREATED_SUCCESSFULLY_FLAG
@@ -549,33 +697,18 @@ if __name__ == '__main__':
 
     #################################################
     #################################################
-    if USE_Keyboard_FLAG == 1:
+    if USE_MyPlotterPureTkinterStandAloneProcess_FLAG == 1:
+        if EXIT_PROGRAM_FLAG == 0:
+            if MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG != 1:
+                print("Failed to open MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class.")
+                ExitProgram_Callback()
+    #################################################
+    #################################################
+
+    #################################################
+    #################################################
+    if USE_Keyboard_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         keyboard.on_press_key("esc", ExitProgram_Callback)
-        keyboard.on_press_key("q", ExitProgram_Callback)
-    #################################################
-    #################################################
-
-    #################################################
-    #################################################
-    if USE_CSVdataLogger_FLAG == 1 and CSVdataLogger_OPEN_FLAG != 1:
-        print("Failed to open CSVdataLogger_ReubenPython3Class.")
-        ExitProgram_Callback()
-    #################################################
-    #################################################
-
-    #################################################
-    #################################################
-    if USE_MyPrint_FLAG == 1 and MyPrint_OPEN_FLAG != 1:
-        print("Failed to open MyPrint_ReubenPython2and3ClassObject.")
-        ExitProgram_Callback()
-    #################################################
-    #################################################
-
-    #################################################
-    #################################################
-    if USE_MyPlotterPureTkinterStandAloneProcess_FLAG == 1 and MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG != 1:
-        print("Failed to open MyPlotterPureTkinterClass_Object.")
-        ExitProgram_Callback()
     #################################################
     #################################################
 
@@ -618,20 +751,35 @@ if __name__ == '__main__':
                 CSVdataLogger_MostRecentDict_FilepathFull = CSVdataLogger_MostRecentDict["FilepathFull"]
 
                 #print("CSVdataLogger_MostRecentDict: " + str(CSVdataLogger_MostRecentDict))
-
         ####################################################
         ####################################################
 
         #################################################### SET's
         ####################################################
-        SinusoidalInput_TimeGain = math.pi / (2.0 * SinusoidalInput_HalfPeriodInSeconds)
-        SinusoidalInput_CalculatedValue_1 = (SinusoidalInput_MaxValue + SinusoidalInput_MinValue)/2.0 + 0.5*abs(SinusoidalInput_MaxValue - SinusoidalInput_MinValue)*math.sin(SinusoidalInput_TimeGain*CurrentTime_MainLoopThread)
-        SinusoidalInput_CalculatedValue_2 = (SinusoidalInput_MaxValue + SinusoidalInput_MinValue)/2.0 + 0.5*abs(SinusoidalInput_MaxValue - SinusoidalInput_MinValue)*math.cos(SinusoidalInput_TimeGain*CurrentTime_MainLoopThread)
 
+        ####################################################
+        ControlInput_CalculatedValue_1 = GetLatestWaveformValue(CurrentTime_MainLoopThread, 
+                                                                ControlInput_MinValue_1, 
+                                                                ControlInput_MaxValue_1, 
+                                                                ControlInput_Period_1, 
+                                                                ControlInput_1)
+        ####################################################
+
+        ####################################################
+        ControlInput_CalculatedValue_2 = GetLatestWaveformValue(CurrentTime_MainLoopThread, 
+                                                                ControlInput_MinValue_2, 
+                                                                ControlInput_MaxValue_2, 
+                                                                ControlInput_Period_2, 
+                                                                ControlInput_2)
+        ####################################################
+
+        ####################################################
         if CSVdataLogger_OPEN_FLAG == 1:
             CSVdataLogger_ReubenPython3ClassObject.AddDataToCSVfile_ExternalFunctionCall([CurrentTime_MainLoopThread,
-                                                                                          SinusoidalInput_CalculatedValue_1,
-                                                                                          SinusoidalInput_CalculatedValue_2])
+                                                                                          ControlInput_CalculatedValue_1,
+                                                                                          ControlInput_CalculatedValue_2])
+        ####################################################
+
         ####################################################
         ####################################################
 
@@ -640,21 +788,30 @@ if __name__ == '__main__':
         if MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG == 1:
 
             ####################################################
-            MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict = MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.GetMostRecentDataDict()
+            try:
+                MyPlotterPureTkinterStandAloneProcess_MostRecentDict = MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.GetMostRecentDataDict()
 
-            if "StandAlonePlottingProcess_ReadyForWritingFlag" in MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict:
-                MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag = MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict["StandAlonePlottingProcess_ReadyForWritingFlag"]
+                if "StandAlonePlottingProcess_ReadyForWritingFlag" in MyPlotterPureTkinterStandAloneProcess_MostRecentDict:
+                    MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag = MyPlotterPureTkinterStandAloneProcess_MostRecentDict["StandAlonePlottingProcess_ReadyForWritingFlag"]
 
-                if MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag == 1:
-                    if CurrentTime_MainLoopThread - LastTime_MainLoopThread_PLOTTER >= 0.040:
-                        MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.ExternalAddPointOrListOfPointsToPlot(["Channel0", "Channel1"], [CurrentTime_MainLoopThread]*2, [SinusoidalInput_CalculatedValue_1, SinusoidalInput_CalculatedValue_2])
-                        LastTime_MainLoopThread_PLOTTER = CurrentTime_MainLoopThread
+                    if MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag == 1:
+                        if CurrentTime_MainLoopThread - LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess >= 0.040:
+                            MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.ExternalAddPointOrListOfPointsToPlot(["Channel0", "Channel1"], [CurrentTime_MainLoopThread]*2, [ControlInput_CalculatedValue_1, ControlInput_CalculatedValue_2])
+
+                            LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess = CurrentTime_MainLoopThread
+            ####################################################
+
+            ####################################################
+            except:
+                exceptions = sys.exc_info()[0]
+                print("MyPlotterPureTkinterStandAloneProcess, exceptions: %s" % exceptions)
+                traceback.print_exc()
             ####################################################
 
         ####################################################
         ####################################################
 
-        time.sleep(0.004)
+        time.sleep(0.010)
     #################################################
     #################################################
     #################################################

@@ -13,15 +13,15 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision H, 11/05/2024
+Software Revision I, 05/27/2025
 
 Verified working on:
 
-Python 3.12
+Python 3.11/3.12
 
-Windows  11 64-bit
+Windows  10/11 64-bit
 
-Raspberry Pi Bullseye
+Raspberry Pi Bookworm
 
 ###########################
 
@@ -31,13 +31,13 @@ Raspberry Pi Bullseye
 
 test_program_for_CSVdataLogger_ReubenPython3Class.py
 
-CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies: ['future.builtins', 'LowPassFilter_ReubenPython2and3Class']
+CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies: ['future.builtins']
 
 CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_TestProgram: ['keyboard', 'MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class', 'MyPrint_ReubenPython2and3Class']
 
 CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_NestedLayers: ['future.builtins', 'numpy', 'pexpect', 'psutil']
 
-CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_All:['future.builtins', 'keyboard', 'LowPassFilter_ReubenPython2and3Class', 'MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class', 'MyPrint_ReubenPython2and3Class', 'numpy', 'pexpect', 'psutil']
+CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_All:['future.builtins', 'keyboard', 'MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class', 'MyPrint_ReubenPython2and3Class', 'numpy', 'pexpect', 'psutil']
 
 ############
 
