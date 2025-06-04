@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision I, 05/27/2025
+Software Revision J, 06/03/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
@@ -681,10 +681,13 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
             #print("CreateNewDirectoryIfItDoesntExist, directory: " + directory)
             if os.path.isdir(directory) == 0: #No directory with this name exists
                 os.makedirs(directory)
+
+            return 1
         except:
             exceptions = sys.exc_info()[0]
             print("CreateNewDirectoryIfItDoesntExist, Exceptions: %s" % exceptions)
-            traceback.print_exc()
+            return 0
+            #traceback.print_exc()
     ##########################################################################################################
     ##########################################################################################################
 
@@ -713,10 +716,13 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
 
             print("CreateCSVfileAndStartWritingData: Opened file " + self.CSVfile_FilepathFull + " and started writing data!")
 
+            return 1
+
         except:
             exceptions = sys.exc_info()[0]
             print("CreateCSVfileAndStartWritingData, Exceptions: %s" % exceptions)
-            traceback.print_exc()
+            return 0
+            #traceback.print_exc()
 
     ##########################################################################################################
     ##########################################################################################################
@@ -735,10 +741,13 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
 
                 print("CloseCSVfileAndStopWritingData: Closed file " + self.CSVfile_FilepathFull + " and stopped writing data!")
 
+                return 1
+
         except:
             exceptions = sys.exc_info()[0]
             print("CloseCSVfileAndStopWritingData, Exceptions: %s" % exceptions)
-            traceback.print_exc()
+            return 0
+            #traceback.print_exc()
 
     ##########################################################################################################
     ##########################################################################################################
