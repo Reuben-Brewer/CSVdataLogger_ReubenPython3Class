@@ -13,7 +13,7 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision J, 06/03/2025
+Software Revision K, 06/15/2025
 
 Verified working on:
 
@@ -31,13 +31,13 @@ Raspberry Pi Bookworm
 
 test_program_for_CSVdataLogger_ReubenPython3Class.py
 
-CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies: ['future.builtins']
+CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies: ['EntryListWithBlinking_ReubenPython2and3Class']
 
 CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_TestProgram: ['keyboard', 'MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class', 'MyPrint_ReubenPython2and3Class']
 
 CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_NestedLayers: ['future.builtins', 'numpy', 'pexpect', 'psutil']
 
-CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_All:['future.builtins', 'keyboard', 'MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class', 'MyPrint_ReubenPython2and3Class', 'numpy', 'pexpect', 'psutil']
+CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_All:['EntryListWithBlinking_ReubenPython2and3Class', 'future.builtins', 'keyboard', 'MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class', 'MyPrint_ReubenPython2and3Class', 'numpy', 'pexpect', 'psutil']
 
 ############
 
