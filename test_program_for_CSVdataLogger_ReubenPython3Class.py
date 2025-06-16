@@ -6,9 +6,9 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision K, 06/15/2025
+Software Revision L, 06/16/2025
 
-Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm (may work on Mac in non-GUI mode, but haven't tested yet).
+Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
 
 __author__ = 'reuben.brewer'
@@ -29,6 +29,8 @@ import threading
 import collections
 from collections import OrderedDict
 import keyboard
+import random
+from random import randint
 
 from tkinter import *
 import tkinter.font as tkFont
@@ -608,6 +610,12 @@ def ExperimentRecordAllData_Button_Response():
 ######################################################################################################
 if __name__ == '__main__':
 
+    ####################################################
+    ####################################################
+    random.seed() #For random-number-generation
+    ####################################################
+    ####################################################
+
     ######################################################################################################
     ######################################################################################################
     global my_platform
@@ -739,35 +747,44 @@ if __name__ == '__main__':
     global PeriodicInput_AcceptableValues
     PeriodicInput_AcceptableValues = ["GUI", "VINThub", "Sine", "Cosine", "Triangular", "Square"]
 
-    global PeriodicInput_1
-    PeriodicInput_1 = "Sine"
+    global PeriodicInput_Type_1
+    PeriodicInput_Type_1 = "Sine"
 
     global PeriodicInput_MinValue_1
-    PeriodicInput_MinValue_1 = -3.0
+    PeriodicInput_MinValue_1 = -1.0
 
     global PeriodicInput_MaxValue_1
-    PeriodicInput_MaxValue_1 = 3.0
+    PeriodicInput_MaxValue_1 = 1.0
 
     global PeriodicInput_Period_1
-    PeriodicInput_Period_1 = 4.0
+    PeriodicInput_Period_1 = 1.0
 
     global PeriodicInput_CalculatedValue_1
     PeriodicInput_CalculatedValue_1 = 0.0
 
-    global PeriodicInput_2
-    PeriodicInput_2 = "Triangular"
+    global PeriodicInput_Type_2
+    PeriodicInput_Type_2 = "Sine"
 
     global PeriodicInput_MinValue_2
     PeriodicInput_MinValue_2 = -1.0
 
     global PeriodicInput_MaxValue_2
-    PeriodicInput_MaxValue_2 = 5.0
+    PeriodicInput_MaxValue_2 = 1.0
 
     global PeriodicInput_Period_2
-    PeriodicInput_Period_2 = 3
+    PeriodicInput_Period_2 = 1.0
 
     global PeriodicInput_CalculatedValue_2
     PeriodicInput_CalculatedValue_2 = 0.0
+    
+    global NoiseCounter
+    NoiseCounter = 0
+
+    global NoiseCounter_FireEveryNth
+    NoiseCounter_FireEveryNth = 5
+
+    global NoiseAmplitude_Percent0to1OfPeriodicInputAmplitude
+    NoiseAmplitude_Percent0to1OfPeriodicInputAmplitude = 0.25
     ######################################################################################################
     ######################################################################################################
 
@@ -1251,17 +1268,26 @@ if __name__ == '__main__':
                                                                 PeriodicInput_MinValue_1, 
                                                                 PeriodicInput_MaxValue_1, 
                                                                 PeriodicInput_Period_1, 
-                                                                PeriodicInput_1)
+                                                                PeriodicInput_Type_1)
         ######################################################################################################
         ######################################################################################################
 
         ######################################################################################################
         ######################################################################################################
-        PeriodicInput_CalculatedValue_2 = GetLatestWaveformValue(CurrentTime_CalculatedFromMainThread, 
-                                                                PeriodicInput_MinValue_2, 
-                                                                PeriodicInput_MaxValue_2, 
-                                                                PeriodicInput_Period_2, 
-                                                                PeriodicInput_2)
+
+        ######################################################################################################
+        PeriodicInput_CalculatedValue_2 = PeriodicInput_CalculatedValue_1*2.0 + 3.0
+        ######################################################################################################
+
+        ######################################################################################################
+        NoiseCounter = NoiseCounter + 1
+        if NoiseCounter == NoiseCounter_FireEveryNth:
+            NoiseAmplitude = NoiseAmplitude_Percent0to1OfPeriodicInputAmplitude * abs(PeriodicInput_MaxValue_1 - PeriodicInput_MinValue_1)
+            NoiseValue = random.uniform(-1.0 * NoiseAmplitude, NoiseAmplitude)
+            PeriodicInput_CalculatedValue_2 = PeriodicInput_CalculatedValue_2 + NoiseValue
+            NoiseCounter = 0
+        ######################################################################################################
+        
         ######################################################################################################
         ######################################################################################################
 

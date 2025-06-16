@@ -3,7 +3,7 @@
 CSVdataLogger_ReubenPython3Class
 
 Code (including ability to hook to Tkinter GUI) to save data in CSV format.
-Includes code to automatically plot data in Excel.
+Includes code to automatically plot data in Excel and MATLAB.
 
 Reuben Brewer, Ph.D.
 
@@ -13,7 +13,7 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision K, 06/15/2025
+Software Revision L, 06/16/2025
 
 Verified working on:
 

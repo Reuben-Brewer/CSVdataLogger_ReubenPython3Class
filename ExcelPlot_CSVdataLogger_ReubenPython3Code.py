@@ -6,9 +6,9 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision K, 06/15/2025
+Software Revision L, 06/16/2025
 
-Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm (may work on Mac in non-GUI mode, but haven't tested yet).
+Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
 
 __author__ = 'reuben.brewer'
@@ -288,6 +288,7 @@ if __name__ == '__main__':
 
         if platform.system() == "Windows":
             FileDirectory = os.getcwd() + "\\CSVfiles"
+            #FileDirectory = "C:\\CSVfiles"
 
         else:
             FileDirectory = os.getcwd() + "//CSVfiles" #Linux requires the opposite-direction slashes
