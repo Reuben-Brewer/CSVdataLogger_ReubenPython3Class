@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision J, 06/03/2025
+Software Revision K, 06/15/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
@@ -27,10 +27,11 @@ import time
 import datetime
 import threading
 import collections
+from collections import OrderedDict
 import keyboard
 
-from tkinter import * #Python 3
-import tkinter.font as tkFont #Python 3
+from tkinter import *
+import tkinter.font as tkFont
 from tkinter import ttk
 ###########################################################
 
@@ -96,7 +97,7 @@ def GetLatestWaveformValue(CurrentTime, MinValue, MaxValue, Period, WaveformType
                 TriangularInput_PeriodInSeconds = 2.0
         
                 #TriangularInput_Height0toPeak = abs(TriangularInput_MaxValue - TriangularInput_MinValue)
-                #TriangularInput_CalculatedValue_1 = abs((TriangularInput_TimeGain*CurrentTime_MainLoopThread % SinusoidalInput_PeriodInSeconds) - TriangularInput_Height0toPeak) + TriangularInput_MinValue
+                #TriangularInput_CalculatedValue_1 = abs((TriangularInput_TimeGain*CurrentTime_CalculatedFromMainThread % PeriodicInput_PeriodInSeconds) - TriangularInput_Height0toPeak) + TriangularInput_MinValue
         
                 A = abs(MaxValue - MinValue)
                 P = Period
@@ -162,12 +163,91 @@ def getPreciseSecondsTimeStampString():
 
 ##########################################################################################################
 ##########################################################################################################
+def getTimeStampString():
+
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%m_%d_%Y---%H_%M_%S')
+
+    return st
+##########################################################################################################
+##########################################################################################################
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+def UpdateGUItabObjectsOrderedDict():
+
+    global EXIT_PROGRAM_FLAG
+
+    global USE_CSVdataLogger_FLAG
+    global CSVdataLogger_OPEN_FLAG
+    global SHOW_IN_GUI_CSVdataLogger_FLAG
+
+    global USE_MyPrint_FLAG
+    global MyPrint_OPEN_FLAG
+    global SHOW_IN_GUI_MyPrint_FLAG
+
+    global GUItabObjectsOrderedDict
+
+    try:
+
+        if EXIT_PROGRAM_FLAG == 0:
+
+            ######################################################################################################
+            ######################################################################################################
+            if len(GUItabObjectsOrderedDict) == 0: #Not yet populated
+                GUItabObjectsOrderedDict = OrderedDict([("MainControls", dict([("UseFlag", 1), ("ShowFlag", 1), ("GUItabObjectName", "MainControls"), ("GUItabNameToDisplay", "MainControls"), ("IsTabCreatedFlag", 0), ("TabObject", None)])),
+                                       ("CSVdataLogger", dict([("UseFlag", USE_CSVdataLogger_FLAG), ("ShowFlag", SHOW_IN_GUI_CSVdataLogger_FLAG), ("GUItabObjectName", "CSVdataLogger"), ("GUItabNameToDisplay", "CSVdataLogger"), ("IsTabCreatedFlag", 0), ("TabObject", None)])),
+                                       ("MyPrint", dict([("UseFlag", USE_MyPrint_FLAG), ("ShowFlag", SHOW_IN_GUI_MyPrint_FLAG), ("GUItabObjectName", "MyPrint"), ("GUItabNameToDisplay", "MyPrint"), ("IsTabCreatedFlag", 0), ("TabObject", None)]))])
+            ######################################################################################################
+            ######################################################################################################
+
+            ######################################################################################################
+            ######################################################################################################
+            GUItabObjectsOrderedDict["MainControls"]["OpenFlag"] = 1
+            GUItabObjectsOrderedDict["CSVdataLogger"]["OpenFlag"] = CSVdataLogger_OPEN_FLAG
+            GUItabObjectsOrderedDict["MyPrint"]["OpenFlag"] = MyPrint_OPEN_FLAG
+            ######################################################################################################
+            ######################################################################################################
+
+            #print("UpdateGUItabObjectsOrderedDict, GUItabObjectsOrderedDict: " + str(GUItabObjectsOrderedDict))
+
+    except:
+        exceptions = sys.exc_info()[0]
+        print("UpdateGUItabObjectsOrderedDict, exceptions: %s" % exceptions)
+        traceback.print_exc()
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
 ##########################################################################################################
 def GUI_update_clock():
     global root
     global EXIT_PROGRAM_FLAG
-    global GUI_RootAfterCallbackInterval_Milliseconds
+    global MAIN_WHILE_LOOP_ENTERED_FLAG
     global USE_GUI_FLAG
+    global GUI_RootAfterCallbackInterval_Milliseconds
+    global TKinter_LightRedColor
+    global TKinter_LightGreenColor
+    global TKinter_LightBlueColor
+    global TKinter_LightYellowColor
+    global TKinter_DefaultGrayColor
+    global GreenCheckmarkPhotoImage
+    global RedXphotoImage
+    global TabControlObject
+    global GUItabObjectsOrderedDict
+
+    global ExperimentActivelyTesting_State
+    global ExperimentActivelyTesting_State_LAST
+    global ExperimentActivelyTesting_TimeElapsedInExperiment
+
+    global ExperimentRecordAllData_Button
+    global ExperimentRecordAllData_State_ToBeSet
 
     global CSVdataLogger_ReubenPython3ClassObject
     global CSVdataLogger_OPEN_FLAG
@@ -181,21 +261,141 @@ def GUI_update_clock():
         if EXIT_PROGRAM_FLAG == 0:
         ##########################################################################################################
         ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
+            ######################################################################################################
+            ######################################################################################################
+            ######################################################################################################
+            if MAIN_WHILE_LOOP_ENTERED_FLAG == 0:
+
+                for TabNameStringAsKey in GUItabObjectsOrderedDict:
+
+                    ######################################################################################################
+                    ######################################################################################################
+                    if "IsTabCreatedFlag" in GUItabObjectsOrderedDict[TabNameStringAsKey]:
+                        if GUItabObjectsOrderedDict[TabNameStringAsKey]["IsTabCreatedFlag"] == 1:
+
+                            ######################################################################################################
+                            if GUItabObjectsOrderedDict[TabNameStringAsKey]["OpenFlag"] == 1:
+                                TabControlObject.tab(GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"], state='normal')
+                                TabControlObject.tab(GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"], image=GreenCheckmarkPhotoImage)
+                            ######################################################################################################
+
+                            ######################################################################################################
+                            else:
+                                TabControlObject.tab(GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"], state='disabled')
+                                TabControlObject.tab(GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"], image=RedXphotoImage)
+                            ######################################################################################################
+
+                    ######################################################################################################
+                    ######################################################################################################
+
+            ######################################################################################################
+            ######################################################################################################
+            ######################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            ##########################################################################################################
+            ActiveGUItabName = str(TabControlObject.tab(TabControlObject.select(), "text"))
+            ##########################################################################################################
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            ##########################################################################################################
+            if ActiveGUItabName == GUItabObjectsOrderedDict["MainControls"]["GUItabNameToDisplay"]:
+
+                ##########################################################################################################
+                ##########################################################################################################
+                GUIobjectNamesListToDisableForExperiment = ["ExperimentRecordAllData_Button"]
+                ##########################################################################################################
+                ##########################################################################################################
+
+                ##########################################################################################################
+                ##########################################################################################################
+                if ExperimentActivelyTesting_State == 1 and ExperimentActivelyTesting_State_LAST != ExperimentActivelyTesting_State: #STARTING the experiment
+
+                    ExperimentActivelyTesting_Button["text"] = "Press to stop experiment"
+                    ExperimentActivelyTesting_Button["bg"] = TKinter_LightRedColor
+
+                    for GUIobjectName in GUIobjectNamesListToDisableForExperiment:
+                        if GUIobjectName != "PeriodicInput_RadioButtonObjectsList":
+                            eval(GUIobjectName)["state"] = "disabled"
+                        else:
+                            for element in eval(GUIobjectName):
+                                element["state"] = "disabled"
+                ##########################################################################################################
+                ##########################################################################################################
+
+                ##########################################################################################################
+                ##########################################################################################################
+                elif ExperimentActivelyTesting_State == 0 and ExperimentActivelyTesting_State_LAST != ExperimentActivelyTesting_State: #STOPPING the experiment
+
+                    ExperimentActivelyTesting_Button["text"] = "Press to start experiment"
+                    ExperimentActivelyTesting_Button["bg"] = TKinter_LightGreenColor
+
+                    for GUIobjectName in GUIobjectNamesListToDisableForExperiment:
+                        if GUIobjectName != "PeriodicInput_RadioButtonObjectsList":
+                            eval(GUIobjectName)["state"] = "normal"
+                        else:
+                            for element in eval(GUIobjectName):
+                                element["state"] = "normal"
+                ##########################################################################################################
+                ##########################################################################################################
+
+                ##########################################################################################################
+                ##########################################################################################################
+                if ExperimentRecordAllData_State_ToBeSet == 1:
+                    ExperimentRecordAllData_Button["bg"] = TKinter_LightRedColor
+                    ExperimentRecordAllData_Button["text"] = "Recording"
+                else:
+                    ExperimentRecordAllData_Button["bg"] = TKinter_LightGreenColor
+                    ExperimentRecordAllData_Button["text"] = "Not recording"
+                ##########################################################################################################
+                ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
             ##########################################################################################################
             if CSVdataLogger_OPEN_FLAG == 1 and SHOW_IN_GUI_CSVdataLogger_FLAG == 1:
-                CSVdataLogger_ReubenPython3ClassObject.GUI_update_clock()
+                if 1:#ActiveGUItabName == GUItabObjectsOrderedDict["CSVdataLogger"]["GUItabNameToDisplay"]:
+                    CSVdataLogger_ReubenPython3ClassObject.GUI_update_clock()
+            ##########################################################################################################
+            ##########################################################################################################
             ##########################################################################################################
 
+            ##########################################################################################################
+            ##########################################################################################################
             ##########################################################################################################
             if MyPrint_OPEN_FLAG == 1 and SHOW_IN_GUI_MyPrint_FLAG == 1:
-                MyPrint_ReubenPython2and3ClassObject.GUI_update_clock()
+                if ActiveGUItabName == GUItabObjectsOrderedDict["MyPrint"]["GUItabNameToDisplay"]:
+                    MyPrint_ReubenPython2and3ClassObject.GUI_update_clock()
+            ##########################################################################################################
+            ##########################################################################################################
             ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
             root.after(GUI_RootAfterCallbackInterval_Milliseconds, GUI_update_clock)
         ##########################################################################################################
         ##########################################################################################################
+        ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
+
+##########################################################################################################
+##########################################################################################################
 ##########################################################################################################
 ##########################################################################################################
 ##########################################################################################################
@@ -219,13 +419,28 @@ def ExitProgram_Callback(OptionalArugment = 0):
 ##########################################################################################################
 ##########################################################################################################
 def GUI_Thread():
+    global my_platform
     global root
     global root_Xpos
     global root_Ypos
     global root_width
     global root_height
     global GUI_RootAfterCallbackInterval_Milliseconds
-    global USE_TABS_IN_GUI_FLAG
+    global GUIbuttonWidth
+    global GUIbuttonPadX
+    global GUIbuttonPadY
+    global GUIbuttonFontSize
+    global USE_GUI_FLAG
+    global TKinter_LightRedColor
+    global TKinter_LightGreenColor
+    global TKinter_LightBlueColor
+    global TKinter_LightYellowColor
+    global TKinter_DefaultGrayColor
+
+    global GreenCheckmarkPhotoImage
+    global RedXphotoImage
+    global GUItabObjectsOrderedDict
+    global TabControlObject
 
     ########################################################################################################## KEY GUI LINE
     ##########################################################################################################
@@ -233,43 +448,107 @@ def GUI_Thread():
     ##########################################################################################################
     ##########################################################################################################
 
-    ##########################################################################################################
-    ##########################################################################################################
-    global TabControlObject
-    global Tab_MainControls
-    global Tab_CSVdataLogger
-    global Tab_MyPrint
+    ###################################################################################################### SET THE DEFAULT FONT FOR ALL WIDGETS CREATED AFTTER/BELOW THIS CALL
+    ######################################################################################################
+    default_font = tkFont.nametofont("TkDefaultFont")
+    default_font.configure(size=8)
+    root.option_add("*Font", default_font)
+    ######################################################################################################
+    ######################################################################################################
 
-    if USE_TABS_IN_GUI_FLAG == 1:
-        ##########################################################################################################
-        TabControlObject = ttk.Notebook(root)
+    ######################################################################################################
+    ######################################################################################################
+    TKinter_LightRedColor = '#%02x%02x%02x' % (255, 150, 150)  # RGB
+    TKinter_LightGreenColor = '#%02x%02x%02x' % (150, 255, 150)  # RGB
+    TKinter_LightBlueColor = '#%02x%02x%02x' % (150, 150, 255)  # RGB
+    TKinter_LightYellowColor = '#%02x%02x%02x' % (255, 255, 150)  # RGB
+    TKinter_DefaultGrayColor = '#%02x%02x%02x' % (240, 240, 240)  # RGB
+    ######################################################################################################
+    ######################################################################################################
 
-        Tab_CSVdataLogger = ttk.Frame(TabControlObject)
-        TabControlObject.add(Tab_CSVdataLogger, text='   CSVdataLogger   ')
+    ######################################################################################################
+    ######################################################################################################
+    try:
+        GreenCheckmarkPhotoImage = PhotoImage(file=os.getcwd() + "//GreenCheckmark.gif")
+        RedXphotoImage = PhotoImage(file=os.getcwd()  + "//RedXmark.gif")
 
-        Tab_MainControls = ttk.Frame(TabControlObject)
-        TabControlObject.add(Tab_MainControls, text='   Main Controls   ')
+    except:
+        exceptions = sys.exc_info()[0]
+        print("GreenCheckmarkPhotoImage/RedXphotoImage, GUI_Thread(), test_program_for_CSVdataLogger_ReubenPython3Class: Exceptions: %s" % exceptions)
+        traceback.print_exc()
+    ######################################################################################################
+    ######################################################################################################
 
-        Tab_MyPrint = ttk.Frame(TabControlObject)
-        TabControlObject.add(Tab_MyPrint, text='   MyPrint Terminal   ')
+    ######################################################################################################
+    ######################################################################################################
 
-        TabControlObject.pack(expand=1, fill="both")  # CANNOT MIX PACK AND GRID IN THE SAME FRAME/TAB, SO ALL .GRID'S MUST BE CONTAINED WITHIN THEIR OWN FRAME/TAB.
+    ######################################################################################################
+    TabControlObject = ttk.Notebook(root)
+    ######################################################################################################
 
-        ############# #Set the tab header font
-        TabStyle = ttk.Style()
-        TabStyle.configure('TNotebook.Tab', font=('Helvetica', '12', 'bold'))
+    ######################################################################################################
+    TabCounter = 0
+    for TabNameStringAsKey in GUItabObjectsOrderedDict:
+
+        #############
+        if GUItabObjectsOrderedDict[TabNameStringAsKey]["UseFlag"] == 1:
+            GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject"] = ttk.Frame(TabControlObject)
+            TabControlObject.add(GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject"], text=GUItabObjectsOrderedDict[TabNameStringAsKey]["GUItabNameToDisplay"])
+
+            if TabCounter == 0:
+                GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"] = ".!notebook.!frame"
+            else:
+                GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"] = ".!notebook.!frame" + str(TabCounter + 1)
+
+            TabControlObject.tab(GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject_InternalStringName"], compound='top')
+            GUItabObjectsOrderedDict[TabNameStringAsKey]["IsTabCreatedFlag"] = 1
+            TabCounter = TabCounter + 1
+        else:
+            GUItabObjectsOrderedDict[TabNameStringAsKey]["TabObject"] = None
         #############
 
-        ##########################################################################################################
-    else:
-        ##########################################################################################################
-        Tab_MainControls = root
-        Tab_CSVdataLogger = root
-        Tab_MyPrint = root
-        ##########################################################################################################
+    ######################################################################################################
 
-    ##########################################################################################################
-    ##########################################################################################################
+    ######################################################################################################
+    TabControlObject.grid(row=0, column=0, sticky='nsew')
+
+    ############# #Set the tab header font
+    TabStyle = ttk.Style()
+    TabStyle.configure('TNotebook.Tab', font=('Helvetica', '12', 'bold'))
+    #############
+
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
+    global ExperimentControlGuiFrame
+    ExperimentControlGuiFrame = Frame(GUItabObjectsOrderedDict["MainControls"]["TabObject"])
+    #ExperimentControlGuiFrame["borderwidth"] = 2
+    #ExperimentControlGuiFrame["relief"] = "ridge"
+    ExperimentControlGuiFrame.grid(row=0, column=0, padx=GUIbuttonPadX, pady=GUIbuttonPadY, rowspan=1, columnspan=1, sticky='w')
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
+    global ExperimentActivelyTesting_Button
+    ExperimentActivelyTesting_Button = Button(ExperimentControlGuiFrame, text="Press to start experiment", state="normal", bg=TKinter_LightGreenColor, width=GUIbuttonWidth, command=lambda: ExperimentActivelyTesting_Button_Response())
+    ExperimentActivelyTesting_Button.grid(row=0, column=0, padx=GUIbuttonPadX, pady=GUIbuttonPadY, columnspan=1, rowspan=1)
+    ExperimentActivelyTesting_Button.config(font=("Helvetica", GUIbuttonFontSize))
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
+    global ExperimentRecordAllData_Button
+    ExperimentRecordAllData_Button = Button(ExperimentControlGuiFrame, text="Record", state="normal", width=GUIbuttonWidth, command=lambda: ExperimentRecordAllData_Button_Response())
+    ExperimentRecordAllData_Button.grid(row=0, column=1, padx=GUIbuttonPadX, pady=GUIbuttonPadY, columnspan=1, rowspan=1)
+    ExperimentRecordAllData_Button.config(font=("Helvetica", GUIbuttonFontSize))
+    ######################################################################################################
+    ######################################################################################################
 
     ########################################################################################################## THIS BLOCK MUST COME 2ND-TO-LAST IN def GUI_Thread() IF USING TABS.
     ##########################################################################################################
@@ -292,12 +571,45 @@ def GUI_Thread():
 ##########################################################################################################
 ##########################################################################################################
 
-##########################################################################################################
-##########################################################################################################
+######################################################################################################
+######################################################################################################
+def ExperimentActivelyTesting_Button_Response():
+    global ExperimentActivelyTesting_State
+    global ExperimentActivelyTesting_EventNeedsToBeFiredFlag
+
+    if ExperimentActivelyTesting_State == 0:
+        ExperimentActivelyTesting_EventNeedsToBeFiredFlag = 1
+    else:
+        ExperimentActivelyTesting_State = 2 #stops the experiment
+
+######################################################################################################
+######################################################################################################
+
+######################################################################################################
+######################################################################################################
+def ExperimentRecordAllData_Button_Response():
+    global ExperimentRecordAllData_EventNeedsToBeFiredFlag
+    global ExperimentRecordAllData_State_ToBeSet
+
+    if ExperimentRecordAllData_State_ToBeSet == 1:
+        ExperimentRecordAllData_State_ToBeSet = 0
+    else:
+        ExperimentRecordAllData_State_ToBeSet = 1
+
+    ExperimentRecordAllData_EventNeedsToBeFiredFlag = 1
+
+######################################################################################################
+######################################################################################################
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
 if __name__ == '__main__':
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global my_platform
 
     if platform.system() == "Linux":
@@ -317,16 +629,13 @@ if __name__ == '__main__':
         my_platform = "other"
 
     print("The OS platform is: " + my_platform)
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global USE_GUI_FLAG
     USE_GUI_FLAG = 1
-
-    global USE_TABS_IN_GUI_FLAG
-    USE_TABS_IN_GUI_FLAG = 1
 
     global USE_CSVdataLogger_FLAG
     USE_CSVdataLogger_FLAG = 1
@@ -339,21 +648,21 @@ if __name__ == '__main__':
 
     global USE_Keyboard_FLAG
     USE_Keyboard_FLAG = 1
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global SHOW_IN_GUI_CSVdataLogger_FLAG
     SHOW_IN_GUI_CSVdataLogger_FLAG = 1
 
     global SHOW_IN_GUI_MyPrint_FLAG
     SHOW_IN_GUI_MyPrint_FLAG = 1
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global GUI_ROW_CSVdataLogger
     global GUI_COLUMN_CSVdataLogger
     global GUI_PADX_CSVdataLogger
@@ -381,19 +690,22 @@ if __name__ == '__main__':
     GUI_PADY_MyPrint = 1
     GUI_ROWSPAN_MyPrint = 1
     GUI_COLUMNSPAN_MyPrint = 1
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global EXIT_PROGRAM_FLAG
     EXIT_PROGRAM_FLAG = 0
 
-    global CurrentTime_MainLoopThread
-    CurrentTime_MainLoopThread = -11111.0
+    global MAIN_WHILE_LOOP_ENTERED_FLAG
+    MAIN_WHILE_LOOP_ENTERED_FLAG = 0
 
-    global StartingTime_MainLoopThread
-    StartingTime_MainLoopThread = -11111.0
+    global CurrentTime_CalculatedFromMainThread
+    CurrentTime_CalculatedFromMainThread = -11111.0
+
+    global StartingTime_CalculatedFromMainThread
+    StartingTime_CalculatedFromMainThread = -11111.0
 
     global root
 
@@ -409,51 +721,89 @@ if __name__ == '__main__':
     global root_height
     root_height = 1020 - root_Ypos
 
-    global TabControlObject
-    global Tab_MainControls
-    global Tab_CSVdataLogger
-    global Tab_MyPrint
+    global GUIbuttonPadX
+    GUIbuttonPadX = 1
+
+    global GUIbuttonPadY
+    GUIbuttonPadY = 1
+
+    global GUIbuttonWidth
+    GUIbuttonWidth = 40
+
+    global GUIbuttonFontSize
+    GUIbuttonFontSize = 12
 
     global GUI_RootAfterCallbackInterval_Milliseconds
     GUI_RootAfterCallbackInterval_Milliseconds = 30
 
-    global ControlInput_AcceptableValues
-    ControlInput_AcceptableValues = ["GUI", "VINThub", "Sine", "Cosine", "Triangular", "Square"]
+    global PeriodicInput_AcceptableValues
+    PeriodicInput_AcceptableValues = ["GUI", "VINThub", "Sine", "Cosine", "Triangular", "Square"]
 
-    global ControlInput_1
-    ControlInput_1 = "Sine"
+    global PeriodicInput_1
+    PeriodicInput_1 = "Sine"
 
-    global ControlInput_MinValue_1
-    ControlInput_MinValue_1 = -3.0
+    global PeriodicInput_MinValue_1
+    PeriodicInput_MinValue_1 = -3.0
 
-    global ControlInput_MaxValue_1
-    ControlInput_MaxValue_1 = 3.0
+    global PeriodicInput_MaxValue_1
+    PeriodicInput_MaxValue_1 = 3.0
 
-    global ControlInput_Period_1
-    ControlInput_Period_1 = 4.0
+    global PeriodicInput_Period_1
+    PeriodicInput_Period_1 = 4.0
 
-    global ControlInput_CalculatedValue_1
-    SinusoidalInput_CalculatedValue_1 = 0.0
+    global PeriodicInput_CalculatedValue_1
+    PeriodicInput_CalculatedValue_1 = 0.0
 
-    global ControlInput_2
-    ControlInput_2 = "Triangular"
+    global PeriodicInput_2
+    PeriodicInput_2 = "Triangular"
 
-    global ControlInput_MinValue_2
-    ControlInput_MinValue_2 = -1.0
+    global PeriodicInput_MinValue_2
+    PeriodicInput_MinValue_2 = -1.0
 
-    global ControlInput_MaxValue_2
-    ControlInput_MaxValue_2 = 5.0
+    global PeriodicInput_MaxValue_2
+    PeriodicInput_MaxValue_2 = 5.0
 
-    global ControlInput_Period_2
-    ControlInput_Period_2 = 3
+    global PeriodicInput_Period_2
+    PeriodicInput_Period_2 = 3
 
-    global ControlInput_CalculatedValue_2
-    SinusoidalInput_CalculatedValue_2 = 0.0
-    #################################################
-    #################################################
+    global PeriodicInput_CalculatedValue_2
+    PeriodicInput_CalculatedValue_2 = 0.0
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
+    global ExperimentActivelyTesting_EventNeedsToBeFiredFlag
+    ExperimentActivelyTesting_EventNeedsToBeFiredFlag = 0
+
+    global ExperimentActivelyTesting_EventFiredAtTimeSeconds
+    ExperimentActivelyTesting_EventFiredAtTimeSeconds = 0.0
+
+    global Experiment_FixedDurationInSeconds
+    Experiment_FixedDurationInSeconds = 10.0
+
+    global ExperimentActivelyTesting_TimeElapsedInExperiment
+    ExperimentActivelyTesting_TimeElapsedInExperiment = 0.0
+
+    global ExperimentActivelyTesting_State
+    ExperimentActivelyTesting_State = 0
+
+    global ExperimentActivelyTesting_State_LAST
+    ExperimentActivelyTesting_State_LAST = 0
+
+    global ExperimentRecordAllData_EventNeedsToBeFiredFlag
+    ExperimentRecordAllData_EventNeedsToBeFiredFlag = 0
+
+    global ExperimentRecordAllData_State_ToBeSet
+    ExperimentRecordAllData_State_ToBeSet = 0
+
+    global TrialNumber
+    TrialNumber = 0
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
     global CSVdataLogger_ReubenPython3ClassObject
 
     global CSVdataLogger_OPEN_FLAG
@@ -483,42 +833,51 @@ if __name__ == '__main__':
     global CSVdataLogger_MostRecentDict_FilepathFull
     CSVdataLogger_MostRecentDict_FilepathFull = ""
 
+    global CSVdataLogger_MostRecentDict_FilenamePrefix
+    CSVdataLogger_MostRecentDict_FilenamePrefix = ""
+
+    global CSVdataLogger_MostRecentDict_TrialNumber
+    CSVdataLogger_MostRecentDict_TrialNumber = -1
+
+    global CSVdataLogger_MostRecentDict_NoteToAddToFile
+    CSVdataLogger_MostRecentDict_NoteToAddToFile = ""
+
     global CSVdataLogger_HeaderWrittenYetFlag
     CSVdataLogger_HeaderWrittenYetFlag = 0
 
     global CSVdataLogger_IsSavingFlag
     CSVdataLogger_IsSavingFlag = 0
 
-    #################################################
+    ######################################################################################################
     global CSVdataLogger_CSVfile_DirectoryPath
 
     if platform.system() == "Windows":
         CSVdataLogger_CSVfile_DirectoryPath = os.getcwd() + "\\CSVfiles"
     else:
         CSVdataLogger_CSVfile_DirectoryPath = os.getcwd() + "//CSVfiles" #Linux requires the opposite-direction slashes
-    #################################################
+    ######################################################################################################
 
-    #################################################
+    ######################################################################################################
     global CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList #unicorn
     CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList = ["Time",
-                                                                                    "ControlInput_CalculatedValue_1",
-                                                                                    "ControlInput_CalculatedValue_2"]
-    #################################################
+                                                                                    "PeriodicInput_CalculatedValue_1",
+                                                                                    "PeriodicInput_CalculatedValue_2"]
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global MyPrint_ReubenPython2and3ClassObject
 
     global MyPrint_OPEN_FLAG
     MyPrint_OPEN_FLAG = -1
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     global MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject
 
     global MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG
@@ -530,34 +889,41 @@ if __name__ == '__main__':
     global MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag
     MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag = -1
 
-    global LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess
-    LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess = -11111.0
-    #################################################
-    #################################################
+    global LastTime_CalculatedFromMainThread_MyPlotterPureTkinterStandAloneProcess
+    LastTime_CalculatedFromMainThread_MyPlotterPureTkinterStandAloneProcess = -11111.0
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################  KEY GUI LINE
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
+    global GUItabObjectsOrderedDict
+    GUItabObjectsOrderedDict = OrderedDict()
+
+    UpdateGUItabObjectsOrderedDict()
+    ######################################################################################################
+    ######################################################################################################
+
+    #######################################################################################################  KEY GUI LINE
+    ######################################################################################################
     if USE_GUI_FLAG == 1:
         print("Starting GUI thread...")
         GUI_Thread_ThreadingObject = threading.Thread(target=GUI_Thread)
         GUI_Thread_ThreadingObject.setDaemon(True) #Should mean that the GUI thread is destroyed automatically when the main thread is destroyed.
         GUI_Thread_ThreadingObject.start()
         time.sleep(0.5)  #Allow enough time for 'root' to be created that we can then pass it into other classes.
+
     else:
-        root = None
-        Tab_MainControls = None
-        Tab_CSVdataLogger = None
-        Tab_MyPrint = None
-    #################################################
-    #################################################
+        pass
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
+    ######################################################################################################
     global CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict
     CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_CSVdataLogger_FLAG),
-                                    ("root", Tab_CSVdataLogger),
+                                    ("root", GUItabObjectsOrderedDict["MainControls"]["TabObject"]),
                                     ("EnableInternal_MyPrint_Flag", 1),
                                     ("NumberOfPrintLines", 10),
                                     ("UseBorderAroundThisGuiObjectFlag", 0),
@@ -567,20 +933,20 @@ if __name__ == '__main__':
                                     ("GUI_PADY", GUI_PADY_CSVdataLogger),
                                     ("GUI_ROWSPAN", GUI_ROWSPAN_CSVdataLogger),
                                     ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_CSVdataLogger)])
-    #################################################
+    ######################################################################################################
 
-    #################################################
+    ######################################################################################################
     global CSVdataLogger_ReubenPython3ClassObject_setup_dict
     CSVdataLogger_ReubenPython3ClassObject_setup_dict = dict([("GUIparametersDict", CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict),
-                                                                                ("NameToDisplay_UserSet", "CSVdataLogger"),
-                                                                                ("CSVfile_DirectoryPath", CSVdataLogger_CSVfile_DirectoryPath),
-                                                                                ("FileNamePrefix", "CSV_file_"),
-                                                                                ("VariableNamesForHeaderList", CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList),
-                                                                                ("MainThread_TimeToSleepEachLoop", 0.010),
-                                                                                ("SaveOnStartupFlag", 0)])
-    #################################################
+                                                                ("CSVfile_DirectoryPath", CSVdataLogger_CSVfile_DirectoryPath),
+                                                                ("FilenamePrefix", "CSV_file_"),
+                                                                ("VariableNamesForHeaderList", CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList),
+                                                                ("MainThread_TimeToSleepEachLoop", 0.010),
+                                                                ("SaveOnStartupFlag", 0),
+                                                                ("EnableSaveButtonFlag", 0)])
+    ######################################################################################################
 
-    #################################################
+    ######################################################################################################
     if USE_CSVdataLogger_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         try:
             CSVdataLogger_ReubenPython3ClassObject = CSVdataLogger_ReubenPython3Class(CSVdataLogger_ReubenPython3ClassObject_setup_dict)
@@ -590,26 +956,32 @@ if __name__ == '__main__':
             exceptions = sys.exc_info()[0]
             print("CSVdataLogger_ReubenPython3ClassObject __init__: Exceptions: %s" % exceptions)
             traceback.print_exc()
-    #################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     if USE_CSVdataLogger_FLAG == 1:
         if EXIT_PROGRAM_FLAG == 0:
             if CSVdataLogger_OPEN_FLAG != 1:
                 print("Failed to open CSVdataLogger_ReubenPython3Class.")
                 ExitProgram_Callback()
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
+    UpdateGUItabObjectsOrderedDict()
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
     global MyPrint_ReubenPython2and3ClassObject_GUIparametersDict
     MyPrint_ReubenPython2and3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_MyPrint_FLAG),
-                                                                    ("root", Tab_MyPrint),
+                                                                    ("root", GUItabObjectsOrderedDict["MyPrint"]["TabObject"]),
                                                                     ("UseBorderAroundThisGuiObjectFlag", 0),
                                                                     ("GUI_ROW", GUI_ROW_MyPrint),
                                                                     ("GUI_COLUMN", GUI_COLUMN_MyPrint),
@@ -634,21 +1006,27 @@ if __name__ == '__main__':
             exceptions = sys.exc_info()[0]
             print("MyPrint_ReubenPython2and3ClassObject __init__: Exceptions: %s" % exceptions)
             traceback.print_exc()
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     if USE_MyPrint_FLAG == 1:
         if EXIT_PROGRAM_FLAG == 0:
             if MyPrint_OPEN_FLAG != 1:
                 print("Failed to open MyPrint_ReubenPython2and3Class.")
                 ExitProgram_Callback()
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
+    UpdateGUItabObjectsOrderedDict()
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
     global MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_GUIparametersDict
     MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject_GUIparametersDict = dict([("EnableInternal_MyPrint_Flag", 1),
                                                                                                 ("NumberOfPrintLines", 10),
@@ -692,51 +1070,64 @@ if __name__ == '__main__':
             exceptions = sys.exc_info()[0]
             print("MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject, exceptions: %s" % exceptions)
             traceback.print_exc()
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     if USE_MyPlotterPureTkinterStandAloneProcess_FLAG == 1:
         if EXIT_PROGRAM_FLAG == 0:
             if MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG != 1:
                 print("Failed to open MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class.")
                 ExitProgram_Callback()
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
     if USE_Keyboard_FLAG == 1 and EXIT_PROGRAM_FLAG == 0:
         keyboard.on_press_key("esc", ExitProgram_Callback)
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
-    #################################################
-    print("Starting main loop 'test_program_for_CSVdataLogger_ReubenPython3Class.")
-    StartingTime_MainLoopThread = getPreciseSecondsTimeStampString()
-
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
     while(EXIT_PROGRAM_FLAG == 0):
 
-        ####################################################
-        ####################################################
-        CurrentTime_MainLoopThread = getPreciseSecondsTimeStampString() - StartingTime_MainLoopThread
-        ####################################################
-        ####################################################
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
+        if MAIN_WHILE_LOOP_ENTERED_FLAG == 0:
+            MAIN_WHILE_LOOP_ENTERED_FLAG = 1
+            StartingTime_CalculatedFromMainThread = getPreciseSecondsTimeStampString()
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
 
-        ################################################### GET's
-        ###################################################
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
+        CurrentTime_CalculatedFromMainThread = getPreciseSecondsTimeStampString() - StartingTime_CalculatedFromMainThread
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
+
+        ###################################################################################################### GET's
+        ######################################################################################################
+        ######################################################################################################
         if CSVdataLogger_OPEN_FLAG == 1:
             CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag = CSVdataLogger_ReubenPython3ClassObject.IsSaving()
         else:
             CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag = 0
-        ###################################################
-        ###################################################
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
 
-        #################################################### GET's
-        ####################################################
+        ###################################################################################################### GET's
+        ######################################################################################################
+        ######################################################################################################
         if CSVdataLogger_OPEN_FLAG == 1:
 
             CSVdataLogger_MostRecentDict = CSVdataLogger_ReubenPython3ClassObject.GetMostRecentDataDict()
@@ -749,45 +1140,151 @@ if __name__ == '__main__':
                 CSVdataLogger_MostRecentDict_DataQueue_qsize = CSVdataLogger_MostRecentDict["DataQueue_qsize"]
                 CSVdataLogger_MostRecentDict_VariableNamesForHeaderList = CSVdataLogger_MostRecentDict["VariableNamesForHeaderList"]
                 CSVdataLogger_MostRecentDict_FilepathFull = CSVdataLogger_MostRecentDict["FilepathFull"]
+                CSVdataLogger_MostRecentDict_FilenamePrefix = CSVdataLogger_MostRecentDict["FilenamePrefix"]
+                CSVdataLogger_MostRecentDict_TrialNumber = CSVdataLogger_MostRecentDict["TrialNumber"]
+                CSVdataLogger_MostRecentDict_NoteToAddToFile = CSVdataLogger_MostRecentDict["NoteToAddToFile"]
 
                 #print("CSVdataLogger_MostRecentDict: " + str(CSVdataLogger_MostRecentDict))
-        ####################################################
-        ####################################################
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
 
-        #################################################### SET's
-        ####################################################
+        ###################################################################################################### unicorn
+        ######################################################################################################
+        ######################################################################################################
+        if ExperimentActivelyTesting_EventNeedsToBeFiredFlag == 1:
 
-        ####################################################
-        ControlInput_CalculatedValue_1 = GetLatestWaveformValue(CurrentTime_MainLoopThread, 
-                                                                ControlInput_MinValue_1, 
-                                                                ControlInput_MaxValue_1, 
-                                                                ControlInput_Period_1, 
-                                                                ControlInput_1)
-        ####################################################
+            ######################################################################################################
+            ######################################################################################################
+            if ExperimentActivelyTesting_State == 0:
 
-        ####################################################
-        ControlInput_CalculatedValue_2 = GetLatestWaveformValue(CurrentTime_MainLoopThread, 
-                                                                ControlInput_MinValue_2, 
-                                                                ControlInput_MaxValue_2, 
-                                                                ControlInput_Period_2, 
-                                                                ControlInput_2)
-        ####################################################
+                ######################################################################################################
+                ExperimentRecordAllData_State_ToBeSet = 1
+                ExperimentRecordAllData_EventNeedsToBeFiredFlag = 1
+                ######################################################################################################
 
-        ####################################################
+                ###################################################################################################### Set targets, enable motors for the experiment.
+                TrialNumber = TrialNumber + 1
+                ######################################################################################################
+
+                ######################################################################################################
+                ExperimentActivelyTesting_EventFiredAtTimeSeconds = CurrentTime_CalculatedFromMainThread
+                ExperimentActivelyTesting_State_LAST = 0
+                ExperimentActivelyTesting_State = 1
+                ######################################################################################################
+
+            ######################################################################################################
+            ######################################################################################################
+
+            ######################################################################################################
+            ######################################################################################################
+            elif ExperimentActivelyTesting_State == 1:
+
+                ExperimentActivelyTesting_TimeElapsedInExperiment = CurrentTime_CalculatedFromMainThread - ExperimentActivelyTesting_EventFiredAtTimeSeconds
+
+                if ExperimentActivelyTesting_TimeElapsedInExperiment >= Experiment_FixedDurationInSeconds:
+                    ExperimentActivelyTesting_State_LAST = 1
+                    ExperimentActivelyTesting_State = 2
+
+                else:
+                    pass #Set how you want actuators/motors to change states/speeds DURING the experiment
+
+            ######################################################################################################
+            ######################################################################################################
+            else:
+
+                pass #Typically want to disable/stop motors as this is where the experiment ends.
+
+                ExperimentRecordAllData_State_ToBeSet = 0 #STOP RECORDING THE CSV
+                ExperimentRecordAllData_EventNeedsToBeFiredFlag = 1
+
+                ExperimentActivelyTesting_State_LAST = 2
+                ExperimentActivelyTesting_State = 0
+
+                print("\n********** Experiment completed! **********\n")
+                ExperimentActivelyTesting_EventNeedsToBeFiredFlag = 0
+
+            ######################################################################################################
+            ######################################################################################################
+
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
+
+        ######################################################################################################
+        ######################################################################################################
+        if ExperimentRecordAllData_EventNeedsToBeFiredFlag == 1:
+
+
+            ######################################################################################################
+            if ExperimentRecordAllData_State_ToBeSet == 1:
+                Timestamp = getTimeStampString()
+
+                CSVfile_DirectoryPath_Input = CSVdataLogger_CSVfile_DirectoryPath
+                print("CSVfile_DirectoryPath_Input: " + CSVfile_DirectoryPath_Input)
+            ######################################################################################################
+
+            ######################################################################################################
+            if CSVdataLogger_OPEN_FLAG == 1:
+                if ExperimentRecordAllData_State_ToBeSet == 1:
+                    CSVdataLogger_ReubenPython3ClassObject.CreateCSVfileAndStartWritingData(CSVfile_DirectoryPath_Input = "",
+                                                                                            FilenamePrefix_Input = "",
+                                                                                            TrialNumber_Input = TrialNumber,
+                                                                                            NoteToAddToFile_Input = "")
+                else:
+                    CSVdataLogger_ReubenPython3ClassObject.StopWritingDataAndCloseCSVfileImmediately()
+            ######################################################################################################
+
+            ExperimentRecordAllData_EventNeedsToBeFiredFlag = 0
+        ######################################################################################################
+        ######################################################################################################
+
+
+
+        ###################################################################################################### SET's
+        ######################################################################################################
+        ######################################################################################################
+
+        ######################################################################################################
+        ######################################################################################################
+        PeriodicInput_CalculatedValue_1 = GetLatestWaveformValue(CurrentTime_CalculatedFromMainThread, 
+                                                                PeriodicInput_MinValue_1, 
+                                                                PeriodicInput_MaxValue_1, 
+                                                                PeriodicInput_Period_1, 
+                                                                PeriodicInput_1)
+        ######################################################################################################
+        ######################################################################################################
+
+        ######################################################################################################
+        ######################################################################################################
+        PeriodicInput_CalculatedValue_2 = GetLatestWaveformValue(CurrentTime_CalculatedFromMainThread, 
+                                                                PeriodicInput_MinValue_2, 
+                                                                PeriodicInput_MaxValue_2, 
+                                                                PeriodicInput_Period_2, 
+                                                                PeriodicInput_2)
+        ######################################################################################################
+        ######################################################################################################
+
+        ######################################################################################################
+        ######################################################################################################
         if CSVdataLogger_OPEN_FLAG == 1:
-            CSVdataLogger_ReubenPython3ClassObject.AddDataToCSVfile_ExternalFunctionCall([CurrentTime_MainLoopThread,
-                                                                                          ControlInput_CalculatedValue_1,
-                                                                                          ControlInput_CalculatedValue_2])
-        ####################################################
+            CSVdataLogger_ReubenPython3ClassObject.AddDataToCSVfile_ExternalFunctionCall([CurrentTime_CalculatedFromMainThread,
+                                                                                          PeriodicInput_CalculatedValue_1,
+                                                                                          PeriodicInput_CalculatedValue_2])
+        ######################################################################################################
+        ######################################################################################################
 
-        ####################################################
-        ####################################################
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
 
-        #################################################### SET's
-        ####################################################
+        ###################################################################################################### SET's
+        ######################################################################################################
+        ######################################################################################################
         if MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG == 1:
 
-            ####################################################
+            ######################################################################################################
+            ######################################################################################################
             try:
                 MyPlotterPureTkinterStandAloneProcess_MostRecentDict = MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.GetMostRecentDataDict()
 
@@ -795,48 +1292,61 @@ if __name__ == '__main__':
                     MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag = MyPlotterPureTkinterStandAloneProcess_MostRecentDict["StandAlonePlottingProcess_ReadyForWritingFlag"]
 
                     if MyPlotterPureTkinterStandAloneProcess_MostRecentDict_StandAlonePlottingProcess_ReadyForWritingFlag == 1:
-                        if CurrentTime_MainLoopThread - LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess >= 0.040:
-                            MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.ExternalAddPointOrListOfPointsToPlot(["Channel0", "Channel1"], [CurrentTime_MainLoopThread]*2, [ControlInput_CalculatedValue_1, ControlInput_CalculatedValue_2])
+                        if CurrentTime_CalculatedFromMainThread - LastTime_CalculatedFromMainThread_MyPlotterPureTkinterStandAloneProcess >= 0.040:
+                            MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.ExternalAddPointOrListOfPointsToPlot(["Channel0", "Channel1"], [CurrentTime_CalculatedFromMainThread]*2, [PeriodicInput_CalculatedValue_1, PeriodicInput_CalculatedValue_2])
 
-                            LastTime_MainLoopThread_MyPlotterPureTkinterStandAloneProcess = CurrentTime_MainLoopThread
-            ####################################################
+                            LastTime_CalculatedFromMainThread_MyPlotterPureTkinterStandAloneProcess = CurrentTime_CalculatedFromMainThread
+            ######################################################################################################
+            ######################################################################################################
 
-            ####################################################
+            ######################################################################################################
+            ######################################################################################################
             except:
                 exceptions = sys.exc_info()[0]
                 print("MyPlotterPureTkinterStandAloneProcess, exceptions: %s" % exceptions)
                 traceback.print_exc()
-            ####################################################
+            ######################################################################################################
+            ######################################################################################################
 
-        ####################################################
-        ####################################################
+        ######################################################################################################
+        ######################################################################################################
+        ######################################################################################################
 
-        time.sleep(0.010)
-    #################################################
-    #################################################
-    #################################################
+        time.sleep(0.040)
 
-    ################################################# THIS IS THE EXIT ROUTINE!
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
+
+    ###################################################################################################### THIS IS THE EXIT ROUTINE!
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
     print("Exiting main program 'test_program_for_CSVdataLogger_ReubenPython3Class.")
 
-    #################################################
+    ######################################################################################################
     if CSVdataLogger_OPEN_FLAG == 1:
         CSVdataLogger_ReubenPython3ClassObject.ExitProgram_Callback()
-    #################################################
+    ######################################################################################################
 
-    #################################################
+    ######################################################################################################
     if MyPrint_OPEN_FLAG == 1:
         MyPrint_ReubenPython2and3ClassObject.ExitProgram_Callback()
-    #################################################
+    ######################################################################################################
 
-    #################################################
+    ######################################################################################################
     if MyPlotterPureTkinterStandAloneProcess_OPEN_FLAG == 1:
         MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3ClassObject.ExitProgram_Callback()
-    #################################################
+    ######################################################################################################
 
-    #################################################
-    #################################################
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
+    ######################################################################################################
 
-##########################################################################################################
-##########################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################

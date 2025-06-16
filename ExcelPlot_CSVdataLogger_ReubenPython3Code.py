@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision J, 06/03/2025
+Software Revision K, 06/15/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm (may work on Mac in non-GUI mode, but haven't tested yet).
 '''
@@ -65,6 +65,10 @@ def OpenXLSsndCopyDataToLists(FileName_full_path):
 
         header_variable_name_list = sheet.columns.values.tolist()
         for index, VariableName in enumerate(header_variable_name_list):
+
+            if header_variable_name_list[index] == "NoteToAddToFile":
+                pass
+
             header_variable_name_list[index] = VariableName.strip()
 
         print("Detected the following variable names: " + str(header_variable_name_list))
@@ -110,13 +114,21 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
     ##########################################################################################################
     try:
 
-        #unicorn
+        ########################################################################################################## unicorn
         CSVdataLogger_VariableNamesForHeaderList = ["Time",
-                                                    "ControlInput_CalculatedValue_1",
-                                                    "ControlInput_CalculatedValue_2"]
-    
-        workbook = xlsxwriter.Workbook(FileName_to_save_full_path)
+                                                    "PeriodicInput_CalculatedValue_1",
+                                                    "PeriodicInput_CalculatedValue_2"]
+        ##########################################################################################################
+
+        ##########################################################################################################
+        if CSVdataLogger_VariableNamesForHeaderList[0].lower().find("time") != -1:
+            CSVdataLogger_VariableNamesForHeaderList[0] = "Time"
+        ##########################################################################################################
+
+        ##########################################################################################################
+        workbook = xlsxwriter.Workbook(FileName_to_save_full_path, {"nan_inf_to_errors": True}) #Prevents "TypeError: NAN/INF not supported in write_number() without 'nan_inf_to_errors' Workbook() option"
         worksheet = workbook.add_worksheet()
+        ##########################################################################################################
 
         ##########################################################################################################
         ##########################################################################################################
@@ -129,7 +141,7 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
         for key in DataOrderedDictToWrite:
 
             starting_cell_string_identifier = AlphabetStringList[numerical_index] + "1"
-            worksheet.write_column(starting_cell_string_identifier, [key] + DataOrderedDictToWrite[key]) #
+            worksheet.write_column(starting_cell_string_identifier, [key] + DataOrderedDictToWrite[key])
             NumberOfDataRows = len(DataOrderedDictToWrite[key])
             worksheet.set_column(numerical_index, numerical_index, 20) #set column width of current column to 20
 
@@ -147,7 +159,7 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
 
         ########################################################################################################## unicorn
         ##########################################################################################################
-        VariableNamesListToInludeOnSinglePlotVsTime = ["ControlInput_CalculatedValue_1", "ControlInput_CalculatedValue_2"]
+        VariableNamesListToInludeOnSinglePlotVsTime = ["PeriodicInput_CalculatedValue_1", "PeriodicInput_CalculatedValue_2"]
 
         ##########################################################################################################
         LengthMax = 31 - 10  # Excel worksheet name must be <= 31 chars.
