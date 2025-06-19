@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision L, 06/16/2025
+Software Revision M, 06/19/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -83,8 +83,13 @@ def OpenXLSsndCopyDataToLists(FileName_full_path):
         ##########################################################################################################
         for row in range(0, NumberOfRows): # Iterate through rows
             for column in range(0, NumberOfColumns):  # Iterate through columns
+                
                 cell_value = sheet.iat[row, column]  # Get cell object by row, col
-                ListOfColumnDataLists[column].append(cell_value.item()) #.item() converts numpy data types to regular python types, important for linux
+                try:
+                    ListOfColumnDataLists[column].append(cell_value.item()) #.item() converts numpy data types to regular python types, important for linux
+                except:
+                    ListOfColumnDataLists[column].append(cell_value) #NoteToAddToFile string data
+                    
         ##########################################################################################################
 
         ##########################################################################################################
@@ -330,12 +335,18 @@ if __name__ == '__main__':
     ##########################################################################################################
     FileSuffixForChartFile = "_with_chart.xls"
 
-    FileList_csv = glob.glob(FileDirectory + '/*.csv')
-    FileList_xls = glob.glob(FileDirectory + '/*.xls')
+    FileList_csv_Unsorted = glob.glob(FileDirectory + '/*.csv')
+    FileList_xls_Unsorted = glob.glob(FileDirectory + '/*.xls')
+    
+    FileList_csv = sorted(FileList_csv_Unsorted, key=os.path.getmtime) #glob sorts different in windows vs ubuntu
+    FileList_xls = sorted(FileList_xls_Unsorted, key=os.path.getmtime)
 
     print("Found " + str(len(FileList_csv)) + " .csv files and " + str(len(FileList_xls)) + " .xls files.")
-    #print("FileList_csv: " + str(FileList_csv))
-    #print("FileList_xls: " + str(FileList_xls))
+
+    print("<<<<<<<<<<\n")
+    for Counter, CSVfilename in enumerate(FileList_csv):
+        print("CSV File " + str(Counter) + ": " + CSVfilename + "\n")
+    print(">>>>>>>>>>\n")
     ##########################################################################################################
     ##########################################################################################################
 
@@ -383,10 +394,7 @@ if __name__ == '__main__':
         if ShowPlotOfMostRecentFileAtEndOfProgramFlag == 1:
 
             ##########################################################################################################
-            if platform.system() == "Windows":
-                MostRecentFileIndex = len(FileList_csv) - 1
-            else:
-                MostRecentFileIndex = 0  # glob reverses the expected order in Linux over Windows.
+            MostRecentFileIndex = len(FileList_csv) - 1
             ##########################################################################################################
 
             ##########################################################################################################

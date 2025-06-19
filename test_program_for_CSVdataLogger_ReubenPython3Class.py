@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision L, 06/16/2025
+Software Revision M, 06/19/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -406,11 +406,11 @@ def GUI_update_clock():
 ##########################################################################################################
 def ExitProgram_Callback(OptionalArugment = 0):
     global EXIT_PROGRAM_FLAG
-    global CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag
+    global CSVdataLogger_IsSavingFlag
 
     print("ExitProgram_Callback event fired!")
 
-    if CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag == 0:
+    if CSVdataLogger_IsSavingFlag == 0:
         EXIT_PROGRAM_FLAG = 1
     else:
         print("ExitProgram_Callback, ERROR! Still saving data.")
@@ -475,9 +475,26 @@ def GUI_Thread():
         RedXphotoImage = PhotoImage(file=os.getcwd()  + "//RedXmark.gif")
 
     except:
-        exceptions = sys.exc_info()[0]
-        print("GreenCheckmarkPhotoImage/RedXphotoImage, GUI_Thread(), test_program_for_CSVdataLogger_ReubenPython3Class: Exceptions: %s" % exceptions)
-        traceback.print_exc()
+        
+        print("test_program_for_CSVdataLogger_ReubenPython3Class.py, GUI_Thread: GreenCheckmark.gif not found in os.getcwd()")
+        
+        try:
+            GreenCheckmarkPhotoImage = PhotoImage(file=os.getcwd() + "//ParametersToBeLoaded//GreenCheckmark.gif")
+            RedXphotoImage = PhotoImage(file=os.getcwd()  + "//ParametersToBeLoaded//RedXmark.gif")
+        
+        except:
+            
+            print("test_program_for_CSVdataLogger_ReubenPython3Class.py, GUI_Thread: GreenCheckmark.gif not found in os.getcwd() + //ParametersToBeLoaded")
+            
+            try:
+                GreenCheckmarkPhotoImage = PhotoImage(file=os.getcwd() + "//InstallFiles_and_SupportDocuments//GreenCheckmark.gif")
+                RedXphotoImage = PhotoImage(file=os.getcwd()  + "//InstallFiles_and_SupportDocuments//RedXmark.gif")
+    
+            except:
+                exceptions = sys.exc_info()[0]
+                print("test_program_for_CSVdataLogger_ReubenPython3Class.py, GUI_Thread: GreenCheckmark.gif not found in os.getcwd() + //InstallFiles_and_SupportDocuments")
+                #traceback.print_exc()
+                
     ######################################################################################################
     ######################################################################################################
 
@@ -960,7 +977,8 @@ if __name__ == '__main__':
                                                                 ("VariableNamesForHeaderList", CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList),
                                                                 ("MainThread_TimeToSleepEachLoop", 0.010),
                                                                 ("SaveOnStartupFlag", 0),
-                                                                ("EnableSaveButtonFlag", 0)])
+                                                                ("EnableSaveButtonFlag", 0),
+                                                                ("ShowSaveButtonFlag", 0)])
     ######################################################################################################
 
     ######################################################################################################
@@ -1135,9 +1153,9 @@ if __name__ == '__main__':
         ######################################################################################################
         ######################################################################################################
         if CSVdataLogger_OPEN_FLAG == 1:
-            CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag = CSVdataLogger_ReubenPython3ClassObject.IsSaving()
+            CSVdataLogger_IsSavingFlag = CSVdataLogger_ReubenPython3ClassObject.IsSaving()
         else:
-            CSVdataLogger_ReubenPython3ClassObject_IsSavingFlag = 0
+            CSVdataLogger_IsSavingFlag = 0
         ######################################################################################################
         ######################################################################################################
         ######################################################################################################

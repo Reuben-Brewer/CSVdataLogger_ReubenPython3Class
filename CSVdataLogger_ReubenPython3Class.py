@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision L, 06/16/2025
+Software Revision M, 06/19/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -419,6 +419,17 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
             self.EnableSaveButtonFlag = 1
 
         print("CSVdataLogger_ReubenPython3Class __init__: EnableSaveButtonFlag: " + str(self.EnableSaveButtonFlag))
+        #########################################################
+        #########################################################
+        
+        #########################################################
+        #########################################################
+        if "ShowSaveButtonFlag" in setup_dict:
+            self.ShowSaveButtonFlag = self.PassThrough0and1values_ExitProgramOtherwise("ShowSaveButtonFlag", setup_dict["ShowSaveButtonFlag"])
+        else:
+            self.ShowSaveButtonFlag = 1
+
+        print("CSVdataLogger_ReubenPython3Class __init__: ShowSaveButtonFlag: " + str(self.ShowSaveButtonFlag))
         #########################################################
         #########################################################
 
@@ -1087,7 +1098,9 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
         #################################################
         #################################################
         self.CSVfile_SaveFlag_Button = Button(self.myFrame, text='Save CSV', state="normal", width=20, font=("Helvetica", 12), command=lambda i=1: self.CSVfile_SaveFlag_ButtonResponse())
-        self.CSVfile_SaveFlag_Button.grid(row=0, column=0, padx=self.GUI_PADX, pady=self.GUI_PADY, columnspan=1, rowspan=1)
+        
+        if self.ShowSaveButtonFlag == 1:
+            self.CSVfile_SaveFlag_Button.grid(row=0, column=0, padx=self.GUI_PADX, pady=self.GUI_PADY, columnspan=1, rowspan=1)
         #################################################
         #################################################
 
