@@ -6,7 +6,7 @@ reuben.brewer@gmail.com,
 www.reubotics.com
 
 Apache 2 License
-Software Revision S, 05/27/2025
+Software Revision T, 06/19/2025
 
 Verified working on: Python 3.12 for Windows 10/11 64-bit, Ubuntu 20.04, and Raspberry Pi Bookworm.
 THE SEPARATE-PROCESS-SPAWNING COMPONENT OF THIS CLASS IS NOT AVAILABLE IN PYTHON 2 DUE TO LIMITATION OF
@@ -485,10 +485,30 @@ class MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class(Frame): #Subc
                     LineWidthList = self.CurvesToPlotNamesAndColorsDictOfLists["LineWidthList"]
                 else:
                     LineWidthList = [3]*len(NameList)
+                    
+                if "IncludeInXaxisAutoscaleCalculationList" in self.CurvesToPlotNamesAndColorsDictOfLists:
+                    IncludeInXaxisAutoscaleCalculationList = self.CurvesToPlotNamesAndColorsDictOfLists["IncludeInXaxisAutoscaleCalculationList"]
+                else:
+                    IncludeInXaxisAutoscaleCalculationList = [1]*len(NameList)
+                    
+                if "IncludeInYaxisAutoscaleCalculationList" in self.CurvesToPlotNamesAndColorsDictOfLists:
+                    IncludeInYaxisAutoscaleCalculationList = self.CurvesToPlotNamesAndColorsDictOfLists["IncludeInYaxisAutoscaleCalculationList"]
+                else:
+                    IncludeInYaxisAutoscaleCalculationList = [1]*len(NameList)
 
-                if len(NameList) == len(ColorList) and len(NameList) == len(MarkerSizeList) and len(NameList) == len(LineWidthList):
+                if len(NameList) == len(ColorList) \
+                        and len(NameList) == len(MarkerSizeList) \
+                        and len(NameList) == len(LineWidthList) \
+                        and len(NameList) == len(IncludeInXaxisAutoscaleCalculationList) \
+                        and len(NameList) == len(IncludeInYaxisAutoscaleCalculationList):
+                        
                     for counter, element in enumerate(NameList):
-                        self.AddCurveToPlot(NameList[counter], ColorList[counter], MarkerSizeList[counter], LineWidthList[counter])
+                        self.AddCurveToPlot(NameList[counter], 
+                                            ColorList[counter], 
+                                            MarkerSizeList[counter], 
+                                            LineWidthList[counter], 
+                                            IncludeInXaxisAutoscaleCalculationList[counter], 
+                                            IncludeInYaxisAutoscaleCalculationList[counter])
 
                 else:
                     print("MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class __init__: Error, 'NameList','CurveList','MarkerSizeList', and 'LineWidthList' must be the same length in self.CurvesToPlotNamesAndColorsDictOfLists.")
@@ -990,12 +1010,14 @@ class MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class(Frame): #Subc
 
     ##########################################################################################################
     ##########################################################################################################
-    def AddCurveToPlot(self, CurveName, Color, MarkerSize=3, LineWidth=3):
+    def AddCurveToPlot(self, CurveName, Color, MarkerSize=3, LineWidth=3, IncludeInXaxisAutoscaleCalculation=1, IncludeInYaxisAutoscaleCalculation=1):
         if CurveName not in self.CurvesToPlotDictOfDicts:
             self.CurvesToPlotDictOfDicts[CurveName] = (dict([("CurveName", CurveName),
                                                              ("Color", Color),
                                                              ("MarkerSize", MarkerSize),
                                                              ("LineWidth", LineWidth),
+                                                             ("IncludeInXaxisAutoscaleCalculation", IncludeInXaxisAutoscaleCalculation),
+                                                             ("IncludeInYaxisAutoscaleCalculation", IncludeInYaxisAutoscaleCalculation),
                                                              ("PointToDrawList", []),
                                                              ("AddPointOrListOfPointsToPlot_TimeLastCalled", -11111.0)]))
             return 1
@@ -1058,20 +1080,7 @@ class MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class(Frame): #Subc
 
         ########################################### At this level, we don't have scope to check if CurveNameStringElement is contained in self.CurvesToPlotDictOfDicts
         for CurveIndex, CurveNameString in enumerate(CurveNameStringList):
-
-            #print("XdataList[CurveIndex]: " + str(XdataList[CurveIndex]))
-            #print("YdataList[CurveIndex]: " + str(YdataList[CurveIndex]))
             self.MultiprocessingQueue_Rx.put(dict([("CurveName", CurveNameString), ("x", XdataList[CurveIndex]), ("y", YdataList[CurveIndex])]))
-
-            '''
-            if self.IsInputList(XdataList[CurveIndex]) == 1:
-
-                for PointIndex, PointXvalue in enumerate(XdataList):
-                    self.MultiprocessingQueue_Rx.put(dict([("CurveName", CurveNameString), ("x", XdataList[CurveIndex][PointIndex]), ("y", YdataList[CurveIndex][PointIndex])]))
-
-            else:
-                self.MultiprocessingQueue_Rx.put(dict([("CurveName", CurveNameString), ("x", XdataList[CurveIndex]), ("y", YdataList[CurveIndex])]))
-            '''
         ###########################################
 
     ##########################################################################################################
@@ -1104,7 +1113,7 @@ class MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class(Frame): #Subc
 
         temp_AddPointOrListOfPointsToPlot_CurrentTime = self.getPreciseSecondsTimeStampString()
 
-        if temp_AddPointOrListOfPointsToPlot_CurrentTime - self.CurvesToPlotDictOfDicts[CurveName]["AddPointOrListOfPointsToPlot_TimeLastCalled"] >= self.GUI_RootAfterCallbackInterval_Milliseconds_IndependentOfParentRootGUIloopEvents/1000.0: #0.030
+        if temp_AddPointOrListOfPointsToPlot_CurrentTime - self.CurvesToPlotDictOfDicts[CurveName]["AddPointOrListOfPointsToPlot_TimeLastCalled"] >= self.GUI_RootAfterCallbackInterval_Milliseconds_IndependentOfParentRootGUIloopEvents/1000.0:
 
             if CurveName in self.CurvesToPlotDictOfDicts:
                 ############################################
@@ -1376,8 +1385,10 @@ class MyPlotterPureTkinterStandAloneProcess_ReubenPython2and3Class(Frame): #Subc
                 TempListOfPointToDrawForThisCurve = temp_CurvesToPlotDictOfDicts[CurveName]["PointToDrawList"]
 
                 for temp_Point in TempListOfPointToDrawForThisCurve:
-                    temp_AllPointsXlist.append(temp_Point[0])
-                    temp_AllPointsYlist.append(temp_Point[1])
+                    if temp_CurvesToPlotDictOfDicts[CurveName]["IncludeInXaxisAutoscaleCalculation"] == 1:
+                        temp_AllPointsXlist.append(temp_Point[0])
+                    if temp_CurvesToPlotDictOfDicts[CurveName]["IncludeInYaxisAutoscaleCalculation"] == 1:    
+                        temp_AllPointsYlist.append(temp_Point[1])
 
 
             if len(temp_AllPointsXlist) > 0:

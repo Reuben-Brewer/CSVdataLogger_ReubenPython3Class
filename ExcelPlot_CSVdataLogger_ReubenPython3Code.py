@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision M, 06/19/2025
+Software Revision N, 06/19/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -49,12 +49,21 @@ import xlsxwriter
 
 ##########################################################################################################
 ##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
 def OpenXLSsndCopyDataToLists(FileName_full_path):
 
     DataOrderedDict = OrderedDict()
 
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
     try:
 
+        ##########################################################################################################
+        ##########################################################################################################
         ##########################################################################################################
         workbook = pandas.ExcelFile(FileName_full_path)
 
@@ -73,38 +82,109 @@ def OpenXLSsndCopyDataToLists(FileName_full_path):
 
         print("Detected the following variable names: " + str(header_variable_name_list))
         ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
         ##########################################################################################################
         ListOfColumnDataLists = []
         for column in range(0, NumberOfColumns):  # Iterate through columns
             ListOfColumnDataLists.append([])
         ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
         ##########################################################################################################
         for row in range(0, NumberOfRows): # Iterate through rows
+            
             for column in range(0, NumberOfColumns):  # Iterate through columns
                 
+                ##########################################################################################################
+                ##########################################################################################################
                 cell_value = sheet.iat[row, column]  # Get cell object by row, col
-                try:
+                ##########################################################################################################
+                ##########################################################################################################
+                
+                ##########################################################################################################
+                ##########################################################################################################
+                try: #First try to write as a number.
                     ListOfColumnDataLists[column].append(cell_value.item()) #.item() converts numpy data types to regular python types, important for linux
-                except:
-                    ListOfColumnDataLists[column].append(cell_value) #NoteToAddToFile string data
+                ##########################################################################################################
+                ##########################################################################################################
+                
+                ##########################################################################################################
+                ##########################################################################################################
+                except: #If not a number, then try to write as a string. #NoteToAddToFile string data AS WELL AS NUMBERS THAT GET WRITTEN AS STRINGS ACCIDENTALLY.
                     
+                    ##########################################################################################################
+                    if len(cell_value.strip()) == 0: #To handle empty cells that are read as spaces.
+                        ListOfColumnDataLists[column].append(None)
+                    ##########################################################################################################
+                    
+                    ##########################################################################################################
+                    else: 
+                        
+                        ##############################################
+                        try:
+                            ListOfColumnDataLists[column].append(float(cell_value.strip())) #Try converting the string to a float
+                        ##############################################
+                        
+                        ##############################################
+                        except:
+                            ListOfColumnDataLists[column].append(str(cell_value.strip())) #if the string isn't a number, then write as an actual string
+                        ##############################################
+                        
+                    ##########################################################################################################
+                    
+                ##########################################################################################################
+                ##########################################################################################################
+                
+        ##########################################################################################################
+        ##########################################################################################################
         ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
         ##########################################################################################################
         for column in range(0, NumberOfColumns):  # Iterate through columns
             DataOrderedDict[header_variable_name_list[column]] = ListOfColumnDataLists[column]
         ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
         return DataOrderedDict
+        ##########################################################################################################
+        ##########################################################################################################
+        ##########################################################################################################
 
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
     except:
         exceptions = sys.exc_info()[0]
         print("OpenXLSsndCopyDataToLists, exceptions: %s" % exceptions)
         #traceback.print_exc()
         return DataOrderedDict
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
 
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
 ##########################################################################################################
 ##########################################################################################################
 
@@ -164,44 +244,97 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
 
         ########################################################################################################## unicorn
         ##########################################################################################################
-        VariableNamesListToInludeOnSinglePlotVsTime = ["PeriodicInput_CalculatedValue_1", "PeriodicInput_CalculatedValue_2"]
+        PlotTitle = "MyPlot"
+        
+        VariableNamesToInludeOnSinglePlotDict = dict([("PeriodicInput_CalculatedValue_1", dict([("XaxisVariableName", "Time"),
+                                                                                                    ("LineAndMarkerColor", "blue"), 
+                                                                                                    ("MarkerType", "circle"), 
+                                                                                                    ("MarkerSize", 1),
+                                                                                                    ("YaxisVariableName_ShortenedForExcel", "P1")])),
+                                                    ("PeriodicInput_CalculatedValue_2", dict([("XaxisVariableName", "Time"),
+                                                                                                    ("LineAndMarkerColor", "red"), 
+                                                                                                    ("MarkerType", "square"),
+                                                                                                    ("MarkerSize", 3),
+                                                                                                    ("YaxisVariableName_ShortenedForExcel", "P2")]))])
+                                                                                                    
+        print("VariableNamesToInludeOnSinglePlotDict: " + str(VariableNamesToInludeOnSinglePlotDict))
+        
+        
+        '''
+        black
+        blue
+        brown
+        cyan
+        gray
+        green
+        lime
+        magenta
+        navy
+        orange
+        pink
+        purple
+        red
+        silver
+        white
+        yellow
+        These are case SENSITIVE.
+        '''
+        
+        '''
+        'automatic'	Default Excel marker
+        'none'	No marker
+        'square'
+        'diamond'
+        'triangle'
+        'x'
+        'star'
+        'dot'
+        'plus'
+        'circle'
+        '''
 
         ##########################################################################################################
         LengthMax = 31 - 10  # Excel worksheet name must be <= 31 chars.
-        VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited = list()
         SumOfAllVariableNamesAsString = ""
-        for index, VariableName in enumerate(VariableNamesListToInludeOnSinglePlotVsTime):
-            if len(VariableName) >= LengthMax: #Limit each, individual name for when it's printed on the plot
-                VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited.append(VariableName[0:LengthMax])
-            else:
-                VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited.append(VariableName)
-
-            if index != len(VariableNamesListToInludeOnSinglePlotVsTime) - 1:
-                SumOfAllVariableNamesAsString = SumOfAllVariableNamesAsString + VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited[index] + ", "
-            else:
-                SumOfAllVariableNamesAsString = SumOfAllVariableNamesAsString + VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited[index]
+        for VariableName in VariableNamesToInludeOnSinglePlotDict:
+            SumOfAllVariableNamesAsString = SumOfAllVariableNamesAsString + VariableNamesToInludeOnSinglePlotDict[VariableName]["YaxisVariableName_ShortenedForExcel"] + ", "
 
         SumOfAllVariableNamesAsString = SumOfAllVariableNamesAsString[0:LengthMax] #Limit the overall Plot title length
+        if SumOfAllVariableNamesAsString.strip()[-1] == ",":
+            SumOfAllVariableNamesAsString = SumOfAllVariableNamesAsString.strip()[:-1]
+            
+        print("SumOfAllVariableNamesAsString: " + str(SumOfAllVariableNamesAsString) + ", Length = " + str(len(SumOfAllVariableNamesAsString)))
         ##########################################################################################################
 
-        print("VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited: " + str(VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited))
-        print("SumOfAllVariableNamesAsString: " + str(SumOfAllVariableNamesAsString) + ", Length = " + str(len(SumOfAllVariableNamesAsString)))
-
+        ##########################################################################################################
         VariableName_vs_Time_Xaxis_Chart_sheet = workbook.add_chartsheet(SumOfAllVariableNamesAsString + " vs Time")
         VariableName_vs_Time_Xaxis_Chart = workbook.add_chart({'type': 'scatter'}) #http://xlsxwriter.readthedocs.io/example_chart_scatter.html
-
         ##########################################################################################################
-        for index, VariableName in enumerate(VariableNamesListToInludeOnSinglePlotVsTime):
-            VariableName_vs_Time_Xaxis_Chart.add_series({'name': VariableNamesListToInludeOnSinglePlotVsTime_NameLengthLimited[index] + ' vs Time','categories': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict["Time"] + "$2:$" + VariableNameVsExcelColumnLetterDict["Time"] + "$"+str(NumberOfDataRows+1),'values': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$2:$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$" + str(NumberOfDataRows+1)}) #X VALUES FIRST, THEN Y
+        
+        ##########################################################################################################
+        for VariableName in VariableNamesToInludeOnSinglePlotDict:
+            VariableName_vs_Time_Xaxis_Chart.add_series({'name': VariableNamesToInludeOnSinglePlotDict[VariableName]["YaxisVariableName_ShortenedForExcel"] + ' vs Time',
+                                                        'categories': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict[VariableNamesToInludeOnSinglePlotDict[VariableName]["XaxisVariableName"]] + "$2:$" + VariableNameVsExcelColumnLetterDict[VariableNamesToInludeOnSinglePlotDict[VariableName]["XaxisVariableName"]] + "$"+str(NumberOfDataRows+1),
+                                                        'values': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$2:$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$" + str(NumberOfDataRows+1), 
+                                                        'line': {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"]},
+                                                        'marker': {'type': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerType"],
+                                                                    'size': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerSize"],
+                                                                    'border': {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"]},
+                                                                    'fill':   {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"]}
+                                                                    }
+                                                                        })
         ##########################################################################################################
 
-        VariableName_vs_Time_Xaxis_Chart.set_title ({'name': SumOfAllVariableNamesAsString + ' vs Time'})
+        ###########################################################################################################
+        VariableName_vs_Time_Xaxis_Chart.set_title ({'name': PlotTitle})
         VariableName_vs_Time_Xaxis_Chart.set_x_axis({'name': 'Time (S)'})
         VariableName_vs_Time_Xaxis_Chart.set_y_axis({'name': SumOfAllVariableNamesAsString})
         VariableName_vs_Time_Xaxis_Chart_sheet.set_chart(VariableName_vs_Time_Xaxis_Chart)
 
         workbook.close()
         time.sleep(0.05)
+        ##########################################################################################################
+                
         ##########################################################################################################
         ##########################################################################################################
 
@@ -292,8 +425,8 @@ if __name__ == '__main__':
     else:
 
         if platform.system() == "Windows":
-            FileDirectory = os.getcwd() + "\\CSVfiles"
-            #FileDirectory = "C:\\CSVfiles"
+            #FileDirectory = os.getcwd() + "\\CSVfiles"
+            FileDirectory = "C:\\CSVfiles"
 
         else:
             FileDirectory = os.getcwd() + "//CSVfiles" #Linux requires the opposite-direction slashes
