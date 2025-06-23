@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision N, 06/19/2025
+Software Revision O, 06/21/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -978,7 +978,8 @@ if __name__ == '__main__':
                                                                 ("MainThread_TimeToSleepEachLoop", 0.010),
                                                                 ("SaveOnStartupFlag", 0),
                                                                 ("EnableSaveButtonFlag", 0),
-                                                                ("ShowSaveButtonFlag", 0)])
+                                                                ("ShowSaveButtonFlag", 0),
+                                                                ("SimplifyDataLabelFlag", 0)])
     ######################################################################################################
 
     ######################################################################################################
