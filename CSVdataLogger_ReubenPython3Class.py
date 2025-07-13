@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision O, 06/21/2025
+Software Revision P, 07/14/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -239,6 +239,28 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
             #########################################################
             #########################################################
 
+            #########################################################
+            #########################################################
+            if "GUI_WIDTH" in self.GUIparametersDict:
+                self.GUI_WIDTH = int(self.PassThroughFloatValuesInRange_ExitProgramOtherwise("GUI_WIDTH", self.GUIparametersDict["GUI_WIDTH"], -1.0, 1000.0))
+            else:
+                self.GUI_WIDTH = -1
+
+            print("CSVdataLogger_ReubenPython3Class __init__: GUI_WIDTH: " + str(self.GUI_WIDTH))
+            #########################################################
+            #########################################################
+
+            #########################################################
+            #########################################################
+            if "GUI_HEIGHT" in self.GUIparametersDict:
+                self.GUI_HEIGHT = int(self.PassThroughFloatValuesInRange_ExitProgramOtherwise("GUI_HEIGHT", self.GUIparametersDict["GUI_HEIGHT"], -1.0, 1000.0))
+            else:
+                self.GUI_HEIGHT = -1
+
+            print("CSVdataLogger_ReubenPython3Class __init__: GUI_HEIGHT: " + str(self.GUI_HEIGHT))
+            #########################################################
+            #########################################################
+            
             #########################################################
             #########################################################
             if "GUI_STICKY" in self.GUIparametersDict:
@@ -841,7 +863,11 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
     ##########################################################################################################
     ##########################################################################################################
     ##########################################################################################################
-    def CreateCSVfileAndStartWritingData(self, CSVfile_DirectoryPath_Input = "", FilenamePrefix_Input = "", TrialNumber_Input = -1, NoteToAddToFile_Input = "", VariableNamesForHeaderList_Input = []):
+    def CreateCSVfileAndStartWritingData(self, CSVfile_DirectoryPath_Input = "", 
+                                                FilenamePrefix_Input = "", 
+                                                TrialNumber_Input = -1, 
+                                                NoteToAddToFile_Input = "", 
+                                                VariableNamesForHeaderList_Input = []):
 
         ##########################################################################################################
         ##########################################################################################################
@@ -878,7 +904,7 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
 
             ##########################################################################################################
             ##########################################################################################################
-            if VariableNamesForHeaderList_Input != "":
+            if VariableNamesForHeaderList_Input != []:
                 self.SetVariableNamesForHeaderList(VariableNamesForHeaderList_Input)
             ##########################################################################################################
             ##########################################################################################################
@@ -1047,7 +1073,7 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
                     self.DataQueue.put(ListOfDataToWrite)
 
                 else:
-                    print("AddDataToCSVfile: ERROR,list is incorrect length.")
+                    print("AddDataToCSVfile: ERROR,list is incorrect length. len(ListOfDataToWrite) = " + str(len(ListOfDataToWrite)) + ", len(self.VariableNamesForHeaderList) = " + str(len(self.VariableNamesForHeaderList)))
 
             else:
                 print("AddDataToCSVfile: ERROR, input must be a list.")
@@ -1120,7 +1146,7 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
                 self.MostRecentDataDict["Time"] = self.CurrentTime_CalculatedFromMainThread
                 self.MostRecentDataDict["DataStreamingFrequency_CalculatedFromMainThread"] = self.DataStreamingFrequency_CalculatedFromMainThread
                 self.MostRecentDataDict["AcceptNewDataFlag"] = self.AcceptNewDataFlag
-                self.MostRecentDataDict["SaveFlag"] = self.CSVfile_SaveFlag
+                self.MostRecentDataDict["IsSavingFlag"] = self.CSVfile_SaveFlag
                 self.MostRecentDataDict["DataQueue_qsize"] = self.DataQueue.qsize()
                 self.MostRecentDataDict["VariableNamesForHeaderList"] = self.VariableNamesForHeaderList
                 self.MostRecentDataDict["FilepathFull"] = self.CSVfile_FilepathFull
@@ -1187,7 +1213,10 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
 
         #################################################
         #################################################
-        self.myFrame = Frame(self.root)
+        if self.GUI_WIDTH != -1 and self.GUI_HEIGHT != -1:
+            self.myFrame = Frame(self.root, height = self.GUI_HEIGHT, width = self.GUI_WIDTH) #MUST SPECIFY BOTH HEIGHT AND WIDTH FOR PROPER RESULTS
+        else:
+            self.myFrame = Frame(self.root)
 
         if self.UseBorderAroundThisGuiObjectFlag == 1:
             self.myFrame["borderwidth"] = 2
@@ -1200,6 +1229,10 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
                           rowspan = self.GUI_ROWSPAN,
                           columnspan= self.GUI_COLUMNSPAN,
                           sticky = self.GUI_STICKY)
+                   
+        if self.GUI_WIDTH != -1 and self.GUI_HEIGHT != -1:
+            self.myFrame.grid_propagate(False)  # Prevent auto-resize, perform first in GUI_Thread() before everything else has been grid()'ed
+        
         #################################################
         #################################################
 
@@ -1286,6 +1319,54 @@ class CSVdataLogger_ReubenPython3Class(Frame): #Subclass the Tkinter Frame
         #################################################
         #################################################
 
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    def grid():
+        
+        ##########################################################################################################
+        try:
+            #print("grid() event fired for CSVdataLogger_ReubenPython3Class")
+            
+            self.myFrame.grid()
+            
+            self.GUI_update_clock()
+            
+        ##########################################################################################################
+        
+        ##########################################################################################################
+        except:
+            exceptions = sys.exc_info()[0]
+            print("grid() for CSVdataLogger_ReubenPython3Class, Exceptions: %s" % exceptions)
+            traceback.print_exc()
+        ##########################################################################################################
+        
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    def grid_remove():
+        
+        ##########################################################################################################
+        try:
+            #print("grid() event fired for CSVdataLogger_ReubenPython3Class")
+            
+            self.myFrame.grid_remove()
+            
+            self.GUI_update_clock()
+
+        ##########################################################################################################
+        
+        ##########################################################################################################
+        except:
+            exceptions = sys.exc_info()[0]
+            print("grid_remove() for CSVdataLogger_ReubenPython3Class, Exceptions: %s" % exceptions)
+            traceback.print_exc()
+        ##########################################################################################################
+        
     ##########################################################################################################
     ##########################################################################################################
 

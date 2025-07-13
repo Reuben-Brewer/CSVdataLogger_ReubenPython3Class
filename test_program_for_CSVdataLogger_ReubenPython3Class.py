@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision O, 06/21/2025
+Software Revision P, 07/14/2025
 
 Verified working on: Python 3.11/3.12 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -154,6 +154,199 @@ def GetLatestWaveformValue(CurrentTime, MinValue, MaxValue, Period, WaveformType
 ##########################################################################################################
 ##########################################################################################################
 
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+def ConvertFloatToStringWithNumberOfLeadingNumbersAndDecimalPlaces_NumberOrListInput(input, number_of_leading_numbers = 4, number_of_decimal_places = 3):
+
+    number_of_decimal_places = max(1, number_of_decimal_places) #Make sure we're above 1
+
+    ListOfStringsToJoin = []
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    if isinstance(input, str) == 1:
+        ListOfStringsToJoin.append(input)
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    elif isinstance(input, int) == 1 or isinstance(input, float) == 1:
+        element = float(input)
+        prefix_string = "{:." + str(number_of_decimal_places) + "f}"
+        element_as_string = prefix_string.format(element)
+
+        ##########################################################################################################
+        ##########################################################################################################
+        if element >= 0:
+            element_as_string = element_as_string.zfill(number_of_leading_numbers + number_of_decimal_places + 1 + 1)  # +1 for sign, +1 for decimal place
+            element_as_string = "+" + element_as_string  # So that our strings always have either + or - signs to maintain the same string length
+        else:
+            element_as_string = element_as_string.zfill(number_of_leading_numbers + number_of_decimal_places + 1 + 1 + 1)  # +1 for sign, +1 for decimal place
+        ##########################################################################################################
+        ##########################################################################################################
+
+        ListOfStringsToJoin.append(element_as_string)
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    elif isinstance(input, list) == 1:
+
+        if len(input) > 0:
+            for element in input: #RECURSION
+                ListOfStringsToJoin.append(ConvertFloatToStringWithNumberOfLeadingNumbersAndDecimalPlaces_NumberOrListInput(element, number_of_leading_numbers, number_of_decimal_places))
+
+        else: #Situation when we get a list() or []
+            ListOfStringsToJoin.append(str(input))
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    elif isinstance(input, tuple) == 1:
+
+        if len(input) > 0:
+            for element in input: #RECURSION
+                ListOfStringsToJoin.append("TUPLE" + ConvertFloatToStringWithNumberOfLeadingNumbersAndDecimalPlaces_NumberOrListInput(element, number_of_leading_numbers, number_of_decimal_places))
+
+        else: #Situation when we get a list() or []
+            ListOfStringsToJoin.append(str(input))
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    elif isinstance(input, dict) == 1:
+
+        if len(input) > 0:
+            for Key in input: #RECURSION
+                ListOfStringsToJoin.append(str(Key) + ": " + ConvertFloatToStringWithNumberOfLeadingNumbersAndDecimalPlaces_NumberOrListInput(input[Key], number_of_leading_numbers, number_of_decimal_places))
+
+        else: #Situation when we get a dict()
+            ListOfStringsToJoin.append(str(input))
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    else:
+        ListOfStringsToJoin.append(str(input))
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+    if len(ListOfStringsToJoin) > 1:
+
+        ##########################################################################################################
+        ##########################################################################################################
+
+        ##########################################################################################################
+        StringToReturn = ""
+        for Index, StringToProcess in enumerate(ListOfStringsToJoin):
+
+            ################################################
+            if Index == 0: #The first element
+                if StringToProcess.find(":") != -1 and StringToProcess[0] != "{": #meaning that we're processing a dict()
+                    StringToReturn = "{"
+                elif StringToProcess.find("TUPLE") != -1 and StringToProcess[0] != "(":  # meaning that we're processing a tuple
+                    StringToReturn = "("
+                else:
+                    StringToReturn = "["
+
+                StringToReturn = StringToReturn + StringToProcess.replace("TUPLE","") + ", "
+            ################################################
+
+            ################################################
+            elif Index < len(ListOfStringsToJoin) - 1: #The middle elements
+                StringToReturn = StringToReturn + StringToProcess + ", "
+            ################################################
+
+            ################################################
+            else: #The last element
+                StringToReturn = StringToReturn + StringToProcess
+
+                if StringToProcess.find(":") != -1 and StringToProcess[-1] != "}":  # meaning that we're processing a dict()
+                    StringToReturn = StringToReturn + "}"
+                elif StringToProcess.find("TUPLE") != -1 and StringToProcess[-1] != ")":  # meaning that we're processing a tuple
+                    StringToReturn = StringToReturn + ")"
+                else:
+                    StringToReturn = StringToReturn + "]"
+
+            ################################################
+
+        ##########################################################################################################
+
+        ##########################################################################################################
+        ##########################################################################################################
+
+    elif len(ListOfStringsToJoin) == 1:
+        StringToReturn = ListOfStringsToJoin[0]
+
+    else:
+        StringToReturn = ListOfStringsToJoin
+
+    return StringToReturn
+    ##########################################################################################################
+    ##########################################################################################################
+    ##########################################################################################################
+
+######################################################################################################
+######################################################################################################
+######################################################################################################
+######################################################################################################
+
+######################################################################################################
+######################################################################################################
+def ConvertDictToProperlyFormattedStringForPrinting(DictToPrint, NumberOfDecimalsPlaceToUse = 3, NumberOfEntriesPerLine = 1, NumberOfTabsBetweenItems = 3):
+
+    ProperlyFormattedStringForPrinting = ""
+    ItemsPerLineCounter = 0
+
+    for Key in DictToPrint:
+
+        if isinstance(DictToPrint[Key], dict): #RECURSION
+            ProperlyFormattedStringForPrinting = ProperlyFormattedStringForPrinting + \
+                                                 str(Key) + ":\n" + \
+                                                 ConvertDictToProperlyFormattedStringForPrinting(DictToPrint[Key], NumberOfDecimalsPlaceToUse, NumberOfEntriesPerLine, NumberOfTabsBetweenItems)
+
+        else:
+            ProperlyFormattedStringForPrinting = ProperlyFormattedStringForPrinting + \
+                                                 str(Key) + ": " + \
+                                                 ConvertFloatToStringWithNumberOfLeadingNumbersAndDecimalPlaces_NumberOrListInput(DictToPrint[Key], 0, NumberOfDecimalsPlaceToUse)
+
+        if ItemsPerLineCounter < NumberOfEntriesPerLine - 1:
+            ProperlyFormattedStringForPrinting = ProperlyFormattedStringForPrinting + "\t"*NumberOfTabsBetweenItems
+            ItemsPerLineCounter = ItemsPerLineCounter + 1
+        else:
+            ProperlyFormattedStringForPrinting = ProperlyFormattedStringForPrinting + "\n"
+            ItemsPerLineCounter = 0
+
+    return ProperlyFormattedStringForPrinting
+######################################################################################################
+######################################################################################################
+
+
 ##########################################################################################################
 ##########################################################################################################
 def getPreciseSecondsTimeStampString():
@@ -254,6 +447,8 @@ def GUI_update_clock():
     global CSVdataLogger_ReubenPython3ClassObject
     global CSVdataLogger_OPEN_FLAG
     global SHOW_IN_GUI_CSVdataLogger_FLAG
+    global CSVdataLogger_Label
+    global CSVdataLogger_MostRecentDict
 
     global MyPrint_ReubenPython2and3ClassObject
     global MyPrint_OPEN_FLAG
@@ -312,6 +507,13 @@ def GUI_update_clock():
 
                 ##########################################################################################################
                 ##########################################################################################################
+                if CSVdataLogger_OPEN_FLAG == 1 and SHOW_IN_GUI_CSVdataLogger_FLAG == 1:
+                    CSVdataLogger_ReubenPython3ClassObject.GUI_update_clock()
+                ##########################################################################################################
+                ##########################################################################################################
+
+                ##########################################################################################################
+                ##########################################################################################################
                 GUIobjectNamesListToDisableForExperiment = ["ExperimentRecordAllData_Button"]
                 ##########################################################################################################
                 ##########################################################################################################
@@ -367,8 +569,17 @@ def GUI_update_clock():
             ##########################################################################################################
             ##########################################################################################################
             if CSVdataLogger_OPEN_FLAG == 1 and SHOW_IN_GUI_CSVdataLogger_FLAG == 1:
-                if 1:#ActiveGUItabName == GUItabObjectsOrderedDict["CSVdataLogger"]["GUItabNameToDisplay"]:
-                    CSVdataLogger_ReubenPython3ClassObject.GUI_update_clock()
+                if ActiveGUItabName == GUItabObjectsOrderedDict["CSVdataLogger"]["GUItabNameToDisplay"]:
+                     
+                    ##########################################################################################################
+                    ##########################################################################################################
+                    CSVdataLogger_Label["text"] = ConvertDictToProperlyFormattedStringForPrinting(CSVdataLogger_MostRecentDict, 
+                                                                    NumberOfDecimalsPlaceToUse = 3, 
+                                                                    NumberOfEntriesPerLine = 1, 
+                                                                    NumberOfTabsBetweenItems = 3)
+                    ##########################################################################################################
+                    ##########################################################################################################
+                    
             ##########################################################################################################
             ##########################################################################################################
             ##########################################################################################################
@@ -406,11 +617,11 @@ def GUI_update_clock():
 ##########################################################################################################
 def ExitProgram_Callback(OptionalArugment = 0):
     global EXIT_PROGRAM_FLAG
-    global CSVdataLogger_IsSavingFlag
+    global CSVdataLogger_MostRecentDict_IsSavingFlag
 
     print("ExitProgram_Callback event fired!")
 
-    if CSVdataLogger_IsSavingFlag == 0:
+    if CSVdataLogger_MostRecentDict_IsSavingFlag == 0:
         EXIT_PROGRAM_FLAG = 1
     else:
         print("ExitProgram_Callback, ERROR! Still saving data.")
@@ -543,6 +754,14 @@ def GUI_Thread():
 
     ######################################################################################################
     ######################################################################################################
+    global CSVdataLogger_Label
+    CSVdataLogger_Label = Label(GUItabObjectsOrderedDict["CSVdataLogger"]["TabObject"], text="CSVdataLogger_Label", width=100, font=("Helvetica", 10))
+    CSVdataLogger_Label.grid(row=0, column=0, padx=GUIbuttonPadX, pady=GUIbuttonPadY, columnspan=1, rowspan=1)
+    ######################################################################################################
+    ######################################################################################################
+
+    ######################################################################################################
+    ######################################################################################################
     global ExperimentControlGuiFrame
     ExperimentControlGuiFrame = Frame(GUItabObjectsOrderedDict["MainControls"]["TabObject"])
     #ExperimentControlGuiFrame["borderwidth"] = 2
@@ -569,7 +788,7 @@ def GUI_Thread():
     ######################################################################################################
     ######################################################################################################
 
-    ########################################################################################################## THIS BLOCK MUST COME 2ND-TO-LAST IN def GUI_Thread() IF USING TABS.
+    ########################################################################################################## THIS BLOCK MUST COME 2ND-TO-LAST IN defGUI_Thread() IF USING TABS.
     ##########################################################################################################
     root.protocol("WM_DELETE_WINDOW", ExitProgram_Callback)  # Set the callback function for when the window's closed.
     root.title("test_program_for_CSVdataLogger_ReubenPython3Class")
@@ -579,7 +798,7 @@ def GUI_Thread():
     ##########################################################################################################
     ##########################################################################################################
 
-    ##########################################################################################################  THIS BLOCK MUST COME LAST IN def GUI_Thread() REGARDLESS OF CODE.
+    ##########################################################################################################  THIS BLOCK MUST COME LAST IN defGUI_Thread() REGARDLESS OF CODE.
     ##########################################################################################################
     root.quit() #Stop the GUI thread, MUST BE CALLED FROM GUI_Thread
     root.destroy() #Close down the GUI thread, MUST BE CALLED FROM GUI_Thread
@@ -627,11 +846,11 @@ def ExperimentRecordAllData_Button_Response():
 ######################################################################################################
 if __name__ == '__main__':
 
-    ####################################################
-    ####################################################
+    ######################################################################################################
+    ######################################################################################################
     random.seed() #For random-number-generation
-    ####################################################
-    ####################################################
+    ######################################################################################################
+    ######################################################################################################
 
     ######################################################################################################
     ######################################################################################################
@@ -701,6 +920,9 @@ if __name__ == '__main__':
     GUI_PADY_CSVdataLogger = 1
     GUI_ROWSPAN_CSVdataLogger = 1
     GUI_COLUMNSPAN_CSVdataLogger = 1
+    GUI_WIDTH_CSVdataLogger = -1
+    GUI_HEIGHT_CSVdataLogger = -1
+    GUI_STICKY_CSVdataLogger = ""
 
     global GUI_ROW_MyPrint
     global GUI_COLUMN_MyPrint
@@ -855,9 +1077,6 @@ if __name__ == '__main__':
     global CSVdataLogger_MostRecentDict_AcceptNewDataFlag
     CSVdataLogger_MostRecentDict_AcceptNewDataFlag = -1
 
-    global CSVdataLogger_MostRecentDict_SaveFlag
-    CSVdataLogger_MostRecentDict_SaveFlag = -1
-
     global CSVdataLogger_MostRecentDict_DataQueue_qsize
     CSVdataLogger_MostRecentDict_DataQueue_qsize = -1
 
@@ -876,11 +1095,8 @@ if __name__ == '__main__':
     global CSVdataLogger_MostRecentDict_NoteToAddToFile
     CSVdataLogger_MostRecentDict_NoteToAddToFile = ""
 
-    global CSVdataLogger_HeaderWrittenYetFlag
-    CSVdataLogger_HeaderWrittenYetFlag = 0
-
-    global CSVdataLogger_IsSavingFlag
-    CSVdataLogger_IsSavingFlag = 0
+    global CSVdataLogger_MostRecentDict_IsSavingFlag
+    CSVdataLogger_MostRecentDict_IsSavingFlag = 0
 
     ######################################################################################################
     global CSVdataLogger_CSVfile_DirectoryPath
@@ -958,22 +1174,25 @@ if __name__ == '__main__':
     global CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict
     CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict = dict([("USE_GUI_FLAG", USE_GUI_FLAG and SHOW_IN_GUI_CSVdataLogger_FLAG),
                                     ("root", GUItabObjectsOrderedDict["MainControls"]["TabObject"]),
-                                    ("EnableInternal_MyPrint_Flag", 1),
+                                    ("EnableInternal_MyPrint_Flag", 0),
                                     ("NumberOfPrintLines", 10),
-                                    ("UseBorderAroundThisGuiObjectFlag", 0),
+                                    ("UseBorderAroundThisGuiObjectFlag", 1),
                                     ("GUI_ROW", GUI_ROW_CSVdataLogger),
                                     ("GUI_COLUMN", GUI_COLUMN_CSVdataLogger),
                                     ("GUI_PADX", GUI_PADX_CSVdataLogger),
                                     ("GUI_PADY", GUI_PADY_CSVdataLogger),
                                     ("GUI_ROWSPAN", GUI_ROWSPAN_CSVdataLogger),
-                                    ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_CSVdataLogger)])
+                                    ("GUI_COLUMNSPAN", GUI_COLUMNSPAN_CSVdataLogger),
+                                    ("GUI_WIDTH", GUI_WIDTH_CSVdataLogger),
+                                    ("GUI_HEIGHT", GUI_HEIGHT_CSVdataLogger),
+                                    ("GUI_STICKY", GUI_STICKY_CSVdataLogger)])
     ######################################################################################################
 
     ######################################################################################################
     global CSVdataLogger_ReubenPython3ClassObject_setup_dict
     CSVdataLogger_ReubenPython3ClassObject_setup_dict = dict([("GUIparametersDict", CSVdataLogger_ReubenPython3ClassObject_GUIparametersDict),
                                                                 ("CSVfile_DirectoryPath", CSVdataLogger_CSVfile_DirectoryPath),
-                                                                ("FilenamePrefix", "CSV_file_"),
+                                                                ("FilenamePrefix", "ThisIsYourBrainOnPrefixes_"),
                                                                 ("VariableNamesForHeaderList", CSVdataLogger_ReubenPython3ClassObject_setup_dict_VariableNamesForHeaderList),
                                                                 ("MainThread_TimeToSleepEachLoop", 0.010),
                                                                 ("SaveOnStartupFlag", 0),
@@ -1154,17 +1373,6 @@ if __name__ == '__main__':
         ######################################################################################################
         ######################################################################################################
         if CSVdataLogger_OPEN_FLAG == 1:
-            CSVdataLogger_IsSavingFlag = CSVdataLogger_ReubenPython3ClassObject.IsSaving()
-        else:
-            CSVdataLogger_IsSavingFlag = 0
-        ######################################################################################################
-        ######################################################################################################
-        ######################################################################################################
-
-        ###################################################################################################### GET's
-        ######################################################################################################
-        ######################################################################################################
-        if CSVdataLogger_OPEN_FLAG == 1:
 
             CSVdataLogger_MostRecentDict = CSVdataLogger_ReubenPython3ClassObject.GetMostRecentDataDict()
 
@@ -1172,13 +1380,16 @@ if __name__ == '__main__':
                 CSVdataLogger_MostRecentDict_Time = CSVdataLogger_MostRecentDict["Time"]
                 CSVdataLogger_MostRecentDict_DataStreamingFrequency_CalculatedFromMainThread = CSVdataLogger_MostRecentDict["DataStreamingFrequency_CalculatedFromMainThread"]
                 CSVdataLogger_MostRecentDict_AcceptNewDataFlag = CSVdataLogger_MostRecentDict["AcceptNewDataFlag"]
-                CSVdataLogger_MostRecentDict_SaveFlag = CSVdataLogger_MostRecentDict["SaveFlag"]
                 CSVdataLogger_MostRecentDict_DataQueue_qsize = CSVdataLogger_MostRecentDict["DataQueue_qsize"]
                 CSVdataLogger_MostRecentDict_VariableNamesForHeaderList = CSVdataLogger_MostRecentDict["VariableNamesForHeaderList"]
                 CSVdataLogger_MostRecentDict_FilepathFull = CSVdataLogger_MostRecentDict["FilepathFull"]
                 CSVdataLogger_MostRecentDict_FilenamePrefix = CSVdataLogger_MostRecentDict["FilenamePrefix"]
                 CSVdataLogger_MostRecentDict_TrialNumber = CSVdataLogger_MostRecentDict["TrialNumber"]
                 CSVdataLogger_MostRecentDict_NoteToAddToFile = CSVdataLogger_MostRecentDict["NoteToAddToFile"]
+                CSVdataLogger_MostRecentDict_IsSavingFlag = CSVdataLogger_MostRecentDict["IsSavingFlag"]
+
+                CSVdataLogger_FileNamePrefix = CSVdataLogger_MostRecentDict_FilenamePrefix #Update in case the user entered something different into the GUI's entry.
+                TrialNumber = CSVdataLogger_MostRecentDict_TrialNumber #Update in case the user entered something different into the GUI's entry.
 
                 #print("CSVdataLogger_MostRecentDict: " + str(CSVdataLogger_MostRecentDict))
         ######################################################################################################
@@ -1197,10 +1408,6 @@ if __name__ == '__main__':
                 ######################################################################################################
                 ExperimentRecordAllData_State_ToBeSet = 1
                 ExperimentRecordAllData_EventNeedsToBeFiredFlag = 1
-                ######################################################################################################
-
-                ###################################################################################################### Set targets, enable motors for the experiment.
-                TrialNumber = TrialNumber + 1
                 ######################################################################################################
 
                 ######################################################################################################
@@ -1237,6 +1444,10 @@ if __name__ == '__main__':
                 ExperimentActivelyTesting_State_LAST = 2
                 ExperimentActivelyTesting_State = 0
 
+                TrialNumber = TrialNumber + 1
+                if CSVdataLogger_OPEN_FLAG == 1:
+                    CSVdataLogger_ReubenPython3ClassObject.SetTrialNumber(TrialNumber)
+
                 print("\n********** Experiment completed! **********\n")
                 ExperimentActivelyTesting_EventNeedsToBeFiredFlag = 0
 
@@ -1264,9 +1475,11 @@ if __name__ == '__main__':
             if CSVdataLogger_OPEN_FLAG == 1:
                 if ExperimentRecordAllData_State_ToBeSet == 1:
                     CSVdataLogger_ReubenPython3ClassObject.CreateCSVfileAndStartWritingData(CSVfile_DirectoryPath_Input = "",
-                                                                                            FilenamePrefix_Input = "",
+                                                                                            FilenamePrefix_Input = CSVdataLogger_FileNamePrefix,
                                                                                             TrialNumber_Input = TrialNumber,
-                                                                                            NoteToAddToFile_Input = "")
+                                                                                            NoteToAddToFile_Input = "",
+                                                                                            VariableNamesForHeaderList_Input = CSVdataLogger_MostRecentDict_VariableNamesForHeaderList)
+                                                                                            
                 else:
                     CSVdataLogger_ReubenPython3ClassObject.StopWritingDataAndCloseCSVfileImmediately()
             ######################################################################################################
