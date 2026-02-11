@@ -13,7 +13,7 @@ www.reubotics.com
 
 Apache 2 License
 
-Software Revision Q, 12/22/2025
+Software Revision R, 02/11/2026
 
 Verified working on:
 
@@ -45,7 +45,11 @@ CSVdataLogger_ReubenPython3Class, ListOfModuleDependencies_All:['EntryListWithBl
 
 ExcelPlot_CSVdataLogger_ReubenPython3Code.py
 
-ExcelPlot_CSVdataLogger_ReubenPython3Code, ListOfModuleDependencies_All:['pandas', 'win32com.client', 'xlsxwriter', 'xlutils.copy', 'xlwt']
+ExcelPlot_CSVdataLogger_ReubenPython3Code.py, ListOfModuleDependencies_All:['openpyxl', 'pandas', 'win32com.client', 'xlsxwriter', 'xlutils.copy', 'xlwt']
+
+pip install pandas==2.1.2
+
+pip install openpyxl==3.0.10
 
 pip install pywin32=311
 

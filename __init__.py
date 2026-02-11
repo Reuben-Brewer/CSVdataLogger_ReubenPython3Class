@@ -6,7 +6,7 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision Q, 12/22/2025
+Software Revision R, 02/11/2026
 
 Verified working on: Python 3.11/12/13 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
 '''
@@ -16,7 +16,7 @@ Verified working on: Python 3.11/12/13 for Windows 10/11 64-bit and Raspberry Pi
 #######################################################################################################################
 #######################################################################################################################
 __author__ = 'reuben.brewer'
-__version__ = "Software Revision Q, 12/22/2025"
+__version__ = "Software Revision R, 02/11/2026"
 
 from .CSVdataLogger_ReubenPython3Class import CSVdataLogger_ReubenPython3Class
 

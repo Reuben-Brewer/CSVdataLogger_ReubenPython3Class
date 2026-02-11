@@ -6,9 +6,9 @@ reuben.brewer@gmail.com
 www.reubotics.com
 
 Apache 2 License
-Software Revision Q, 12/22/2025
+Software Revision R, 02/11/2026
 
-Verified working on: Python 3.11/12/13 for Windows 10/11 64-bit and Raspberry Pi Bookworm.
+Verified working on: Python 3.11/12/13 for Windows 10/11 64-bit, Ubuntu 24.04-LTS, and Raspberry Pi Bookworm.
 '''
 
 __author__ = 'reuben.brewer'
@@ -26,6 +26,7 @@ import subprocess
 import platform
 import argparse
 import pandas
+import openpyxl
 #########################################################
 
 ######################################################### For commanding Excel as a program
@@ -52,7 +53,7 @@ import xlsxwriter
 ##########################################################################################################
 ##########################################################################################################
 ##########################################################################################################
-def OpenXLSsndCopyDataToLists(FileName_full_path):
+def OpenXLSandCopyDataToLists(FileName_full_path):
 
     DataOrderedDict = OrderedDict()
 
@@ -178,7 +179,7 @@ def OpenXLSsndCopyDataToLists(FileName_full_path):
     ##########################################################################################################
     except:
         exceptions = sys.exc_info()[0]
-        print("OpenXLSsndCopyDataToLists, exceptions: %s" % exceptions)
+        print("OpenXLSandCopyDataToLists, exceptions: %s" % exceptions)
         #traceback.print_exc()
         return DataOrderedDict
     ##########################################################################################################
@@ -307,15 +308,19 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
         PlotTitle = "MyPlot"
 
         VariableNamesToInludeOnSinglePlotDict = dict([("PeriodicInput_CalculatedValue_1", dict([("XaxisVariableName", "Time"),
-                                                                                                    ("LineAndMarkerColor", "green"),
-                                                                                                    ("MarkerType", "circle"), 
-                                                                                                    ("MarkerSize", 2),
-                                                                                                    ("YaxisVariableName_ShortenedForExcel", "P1")])),
+                                                                                                ("MarkerType", "circle"),
+                                                                                                ("MarkerSize", 2),
+                                                                                                ("MarkerColor", "black"),
+                                                                                                ("LineWidth", 0),
+                                                                                                ("LineColor", "black"),
+                                                                                                ("YaxisVariableName_ShortenedForExcel", "P1")])),
                                                     ("PeriodicInput_CalculatedValue_2", dict([("XaxisVariableName", "Time"),
-                                                                                                    ("LineAndMarkerColor", "red"), 
-                                                                                                    ("MarkerType", "square"),
-                                                                                                    ("MarkerSize", 4),
-                                                                                                    ("YaxisVariableName_ShortenedForExcel", "P2")]))])
+                                                                                                ("MarkerType", "square"),
+                                                                                                ("MarkerSize", 4),
+                                                                                                ("MarkerColor", "red"),
+                                                                                                ("LineWidth", 2),
+                                                                                                ("LineColor", "blue"),
+                                                                                                ("YaxisVariableName_ShortenedForExcel", "P2")]))])
                                                                                                     
         print("VariableNamesToInludeOnSinglePlotDict: " + str(VariableNamesToInludeOnSinglePlotDict))
         ##########################################################################################################
@@ -330,6 +335,9 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
 
         MinMarkerSizeInExcel = 2
         MaxMarkerSizeInExcel = 72
+
+        MinLineWidthInExcel = 2
+        MaxLineWidthInExcel = 72
         ##########################################################################################################
         ##########################################################################################################
         ##########################################################################################################
@@ -384,8 +392,8 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
 
             ##########################################################################################################
             ##########################################################################################################
-            if VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"] not in ColorsSupportedNativelyInExcelList:
-                VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"] = "black"
+            if VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerColor"] not in ColorsSupportedNativelyInExcelList:
+                VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerColor"] = "black"
             ##########################################################################################################
             ##########################################################################################################
 
@@ -398,17 +406,38 @@ def CreateExcelChart(FileName_to_save_full_path, DataOrderedDictToWrite):
 
             ##########################################################################################################
             ##########################################################################################################
+            if VariableNamesToInludeOnSinglePlotDict[VariableName]["LineWidth"] != 0:
+                VariableNamesToInludeOnSinglePlotDict[VariableName]["LineWidth"] = max(MinLineWidthInExcel, min(VariableNamesToInludeOnSinglePlotDict[VariableName]["LineWidth"], MaxLineWidthInExcel))
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            if VariableNamesToInludeOnSinglePlotDict[VariableName]["LineColor"] not in ColorsSupportedNativelyInExcelList:
+                VariableNamesToInludeOnSinglePlotDict[VariableName]["LineColor"] = "black"
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
+            if VariableNamesToInludeOnSinglePlotDict[VariableName]["LineWidth"] == 0:
+                LineDict = {'none': True}
+            else:
+                LineDict = {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineColor"],
+                            'width': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineWidth"]}
+            ##########################################################################################################
+            ##########################################################################################################
+
+            ##########################################################################################################
+            ##########################################################################################################
             VariableName_vs_Time_Xaxis_Chart.add_series({'name': VariableNamesToInludeOnSinglePlotDict[VariableName]["YaxisVariableName_ShortenedForExcel"] + ' vs Time',
                                                         'categories': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict[VariableNamesToInludeOnSinglePlotDict[VariableName]["XaxisVariableName"]] + "$2:$" + VariableNameVsExcelColumnLetterDict[VariableNamesToInludeOnSinglePlotDict[VariableName]["XaxisVariableName"]] + "$"+str(NumberOfDataRows+1),
-                                                        'values': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$2:$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$" + str(NumberOfDataRows+1), 
-                                                        'line': {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"],
-                                                                 'width': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerSize"]},
+                                                        'values': "=Sheet1!$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$2:$" + VariableNameVsExcelColumnLetterDict[VariableName] + "$" + str(NumberOfDataRows+1),
+                                                        'line': LineDict,
                                                         'marker': {'type': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerType"],
                                                                     'size': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerSize"],
-                                                                    'border': {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"]},
-                                                                    'fill':   {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["LineAndMarkerColor"]}
-                                                                    }
-                                                                        })
+                                                                    'border': {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerColor"]},
+                                                                    'fill':   {'color': VariableNamesToInludeOnSinglePlotDict[VariableName]["MarkerColor"]}}})
             ##########################################################################################################
             ##########################################################################################################
 
@@ -497,6 +526,9 @@ if __name__ == '__main__':
     global ShowPlotOfMostRecentFileAtEndOfProgramFlag
     ShowPlotOfMostRecentFileAtEndOfProgramFlag = 1
 
+    global OverwriteAllowedFlag
+    OverwriteAllowedFlag = 0
+
     ##########################################################################################################
     ##########################################################################################################
     ##########################################################################################################
@@ -504,7 +536,7 @@ if __name__ == '__main__':
     ##########################################################################################################
     ##########################################################################################################
     print("$$$$$$$$$$$$$$$$")
-    print("RUN THIS PROGRAM FROM COMMAND LINE LIKE THIS: 'python ExcelPlot_CSVdataLogger_ReubenPython3Code.py -f 'CSV-FILE-DIRECTORY-FULL-PATH' -o '0 or 1 ShowPlotOfMostRecentFileAtEndOfProgramFlag'.")
+    print("RUN THIS PROGRAM FROM COMMAND LINE LIKE THIS: 'python ExcelPlot_CSVdataLogger_ReubenPython3Code.py -f 'CSV-FILE-DIRECTORY-FULL-PATH' -s '0 or 1 ShowPlotOfMostRecentFileAtEndOfProgramFlag' -o '0 or 1 OverwriteAllowedFlag'.")
     print("$$$$$$$$$$$$$$$$")
     ##########################################################################################################
     ##########################################################################################################
@@ -516,6 +548,7 @@ if __name__ == '__main__':
         argparse_Object = argparse.ArgumentParser()
         argparse_Object.add_argument("-f", "--filepath", nargs='?', const='arg_was_not_given', required=False, help="Full filepath to CSV file.") #nargs='?', const='arg_was_not_given' is the key to allowing us to not input an argument (use Pycharm "run")
         argparse_Object.add_argument("-s", "--showplot", nargs='?', const='arg_was_not_given', required=False, help="Open the plotted data for the most-recent file at the end of the script.")
+        argparse_Object.add_argument("-o", "--overwriteallowed", nargs='?', const='arg_was_not_given', required=False, help="Overwrite files that have already been converted.")
         ARGV_Dict = vars(argparse_Object.parse_args())
 
     ##########################################################################################################
@@ -554,6 +587,17 @@ if __name__ == '__main__':
     ##########################################################################################################
 
     ##########################################################################################################
+    if "overwriteallowed" in ARGV_Dict and ARGV_Dict["overwriteallowed"] != None:
+        OverwriteAllowedFlag = int(ARGV_Dict["overwriteallowed"])
+
+        if OverwriteAllowedFlag not in [0, 1]:
+            print("Error: OverwriteAllowedFlag must be 0 or 1. Defaulting to 1.")
+            OverwriteAllowedFlag = 0
+
+    print("OverwriteAllowedFlag: " + str(OverwriteAllowedFlag))
+    ##########################################################################################################
+
+    ##########################################################################################################
     ##########################################################################################################
 
     ##########################################################################################################
@@ -584,10 +628,15 @@ if __name__ == '__main__':
 
     print("Found " + str(len(FileList_csv)) + " .csv files and " + str(len(FileList_xls)) + " .xls files.")
 
-    print("<<<<<<<<<<\n")
-    for Counter, CSVfilename in enumerate(FileList_csv):
-        print("CSV File " + str(Counter) + ": " + CSVfilename + "\n")
-    print(">>>>>>>>>>\n")
+    '''
+    #Print creation, modified, and accessed times for all files for debugging
+    for f in FileList_csv:
+        print("\n", f)
+        print("  mtime (modified):", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(f))))
+        print("  ctime (created) :", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getctime(f))))
+        print("  atime (accessed):", time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getatime(f))))
+    '''
+
     ##########################################################################################################
     ##########################################################################################################
 
@@ -604,8 +653,18 @@ if __name__ == '__main__':
 
         ##########################################################################################################
         ##########################################################################################################
-        if FileName_xls not in FileList_xls: #Make sure we haven't already converted this csv to a xls file.
+        ProcessFileFlag = 0
+        if OverwriteAllowedFlag == 0:
+            if FileName_xls not in FileList_xls: #Make sure we haven't already converted this csv to a xls file.
+                ProcessFileFlag = 1
+        else:
+            ProcessFileFlag = 1
+        ##########################################################################################################
+        ##########################################################################################################
 
+        ##########################################################################################################
+        ##########################################################################################################
+        if ProcessFileFlag == 1:
             print("Converting CSV file to xls file for " + FileName_csv)
             read_file = pandas.read_csv(FileName_csv)
             read_file.to_excel(FileName_xls, index=None, header=True, engine="xlsxwriter")
@@ -617,11 +676,11 @@ if __name__ == '__main__':
 
         ##########################################################################################################
         ##########################################################################################################
-        if FileName_WITH_CHART_xls not in FileList_xls: #Make sure we haven't already created a chart file for this csv.
+        if ProcessFileFlag == 1:
 
             print("Creating xls chart file for " + FileName_csv)
 
-            DataOrderedDictFromOriginalFile = OpenXLSsndCopyDataToLists(FileName_xls)
+            DataOrderedDictFromOriginalFile = OpenXLSandCopyDataToLists(FileName_xls)
 
             CreateExcelChart(FileName_WITH_CHART_xls, DataOrderedDictFromOriginalFile)
 
@@ -635,11 +694,11 @@ if __name__ == '__main__':
         if ShowPlotOfMostRecentFileAtEndOfProgramFlag == 1:
 
             ##########################################################################################################
-            MostRecentFileIndex = len(FileList_csv) - 1
+            MostRecentFile = max(FileList_csv, key=os.path.getctime)
             ##########################################################################################################
 
             ##########################################################################################################
-            if index == MostRecentFileIndex:
+            if FileName_csv == MostRecentFile:
 
                 ######################################
                 if platform.system() == "Windows":
